@@ -1,0 +1,22 @@
+﻿conceito_id,conceito_clinico,categoria,observacao
+S001,Dispneia,Respiratório,Falta de ar ou dificuldade respiratória.
+S002,Ortopneia,Respiratório,Dispneia relacionada à posição deitada.
+S003,Dispneia paroxística noturna,Respiratório,Dispneia que desperta durante o sono.
+S004,Fadiga/cansaço,Sistêmico,Redução de energia ou cansaço.
+S005,Intolerância ao exercício,Funcional,Limitação para realizar esforço.
+S006,Tosse noturna,Respiratório,O contexto noturno é relevante.
+S007,Ganho de peso,Sistêmico,Interpretar junto ao contexto clínico.
+S008,Perda de peso,Sistêmico,Pouco específica isoladamente.
+S009,Dor abdominal,Gastrointestinal,Pouco específica isoladamente.
+S010,Perda de apetite,Gastrointestinal,Pouco específica isoladamente.
+S011,Noctúria,Urinário,Micção repetida durante a noite.
+S012,Oligúria,Urinário,Redução da produção urinária.
+S013,Dor/desconforto torácico,Cardiovascular,"Inclui dor, pressão, aperto, peso, opressão ou desconforto."
+S014,Sudorese,Autonômico,Inclui relato de suor frio.
+S015,Náusea,Gastrointestinal,Náusea/enjoo.
+S016,Vômito,Gastrointestinal,Episódio de vômito.
+S017,Tontura/pré-síncope,Neurológico/circulatório,Sensação de desmaio sem perda confirmada de consciência.
+S018,Síncope,Neurológico/circulatório,Perda transitória de consciência.
+S019,Palidez,Observável/circulatório,Pode ser percebida por terceiros.
+S020,Palpitações,Cardiovascular,Percepção anormal dos batimentos.
+S021,Edema periférico,Congestivo,Inchaço periférico; não é diagnóstico isoladamente.

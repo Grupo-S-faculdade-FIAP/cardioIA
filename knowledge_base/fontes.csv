@@ -1,0 +1,8 @@
+﻿fonte_id,titulo,instituicao,ano,url,uso_na_base
+F001,Diretriz Brasileira de Insuficiência Cardíaca Crônica e Aguda,SBC / DEIC,2018,https://www.scielo.br/j/abc/a/XkVKFb4838qXrXSYbmCYM3K/,Base de sinais/sintomas de IC.
+F002,Linha de Cuidado do Infarto Agudo do Miocárdio,Ministério da Saúde,s.d.,https://linhasdecuidado.saude.gov.br/portal/infarto-agudo-do-miocardio/,"Dor torácica, irradiação, duração e sintomas associados."
+F003,Acute Coronary Syndrome,American Heart Association,s.d.,https://www.heart.org/en/health-topics/heart-attack/about-heart-attacks/acute-coronary-syndrome,Complemento para manifestações de SCA.
+F004,Diretriz de Síndrome Coronariana Crônica – 2025,Sociedade Brasileira de Cardiologia,2025,https://abccardiol.org/article/diretriz-de-sindrome-coronariana-cronica-2025/,"Angina, esforço, alívio e avaliação de sintomas. Diretriz publicada em 2025; há errata de 2026 sobre autoria/conflitos de interesse."
+F005,Stable Angina,American Heart Association,s.d.,https://www.heart.org/en/health-topics/heart-attack/angina-chest-pain/angina-pectoris-stable-angina,"Padrão previsível, esforço e alívio."
+F006,Cardiorenal Syndrome in the Hospital,Revisão científica / PMC,2023,https://pmc.ncbi.nlm.nih.gov/articles/PMC9953721/,"Congestão, sobrecarga de volume e interação cardiorrenal."
+F007,"Cardiorenal Syndrome: Classification, Pathophysiology, Diagnosis, and Treatment Strategies",Revisão científica / PMC,2022,https://pmc.ncbi.nlm.nih.gov/articles/PMC9146647/,Contexto complementar cardiorrenal.

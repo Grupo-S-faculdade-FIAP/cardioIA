@@ -1,0 +1,34 @@
+CARDIOIA — FASE 2
+RELATOS SIMULADOS DE PACIENTES
+
+Observação: os relatos abaixo são dados sintéticos criados exclusivamente para desenvolvimento e teste educacional do sistema. Não representam pacientes reais nem diagnósticos confirmados.
+
+RELATO 01
+Há cerca de duas semanas comecei a ficar sem ar quando caminho até o mercado. Antes fazia esse trajeto normalmente, mas agora preciso parar para descansar e tenho me sentido muito cansado durante o dia.
+
+RELATO 02
+Nos últimos dias tenho sentido falta de ar quando me deito para dormir. Minha respiração melhora quando me sento, e algumas vezes precisei ficar sentado na cama para conseguir respirar melhor.
+
+RELATO 03
+Faz aproximadamente uma semana que acordo de madrugada com muita falta de ar. Preciso me sentar por alguns minutos para respirar melhor, e isso tem atrapalhado meu sono e me deixado cansado no dia seguinte.
+
+RELATO 04
+Hoje comecei de repente a sentir um aperto forte no peito enquanto estava sentado. Já faz mais de vinte minutos, não melhorou, a dor está indo para o meu braço e comecei a suar frio e sentir enjoo.
+
+RELATO 05
+Desde ontem estou tendo episódios de desconforto no peito. Em um deles fiquei tonto, parecia que eu ia desmaiar e disseram que eu estava muito pálido. Desde então estou evitando minhas atividades porque tenho medo de passar mal novamente.
+
+RELATO 06
+Há cerca de um mês sinto uma pressão no peito quando subo escadas ou caminho rápido. Quando paro e descanso, ela melhora depois de alguns minutos. Por causa disso tenho evitado fazer esforço e demoro mais para realizar minhas tarefas.
+
+RELATO 07
+Eu sentia aperto no peito apenas quando fazia bastante esforço, mas nesta última semana ele começou a acontecer com mais frequência e com atividades mais leves, como caminhar devagar. Ontem senti o mesmo desconforto mesmo estando parado e isso está limitando bastante minha rotina.
+
+RELATO 08
+Nos últimos dias minhas pernas e meus tornozelos começaram a ficar inchados. Também percebi que estou urinando bem menos que antes e fico sem ar quando caminho. Tenho evitado sair de casa porque me canso rapidamente.
+
+RELATO 09
+Há alguns dias percebi que meu peso aumentou rapidamente e comecei a acordar várias vezes durante a noite para urinar. Também tenho tossido de madrugada e minhas atividades diárias estão me deixando mais cansado do que antes.
+
+RELATO 10
+Nas últimas semanas perdi o apetite e emagreci sem querer. Também tenho sentido desconforto na barriga e muito cansaço para realizar tarefas simples. Esses sintomas estão atrapalhando minha rotina porque tenho pouca energia para fazer minhas atividades.

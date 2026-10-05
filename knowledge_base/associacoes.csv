@@ -1,0 +1,29 @@
+﻿associacao_id,conceito_id,condicao_associada,tipo_relacao,fonte_id,atributos_relevantes,observacao
+AS001,S001,Insuficiência Cardíaca,sintoma típico,F001,A003|A001|A008,Contexto diferencia apresentações.
+AS002,S002,Insuficiência Cardíaca,sintoma típico,F001,A001|A002,Depende do contexto posicional.
+AS003,S003,Insuficiência Cardíaca,sintoma típico,F001,A008,Despertar durante o sono é relevante.
+AS004,S004,Insuficiência Cardíaca,sintoma típico,F001,A003,Pouco específico isoladamente.
+AS005,S005,Insuficiência Cardíaca,sintoma típico,F001,A003,Limitação funcional ao esforço.
+AS006,S006,Insuficiência Cardíaca,sintoma menos típico,F001,A008,Não mapear tosse genérica para IC.
+AS007,S007,Insuficiência Cardíaca,sintoma menos típico,F001,,Interpretar com contexto.
+AS008,S008,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específico isoladamente.
+AS009,S009,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específico isoladamente.
+AS010,S010,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específico isoladamente.
+AS011,S011,Insuficiência Cardíaca,sintoma menos típico,F001,A008,Contexto noturno essencial.
+AS012,S012,Insuficiência Cardíaca / contexto cardiorrenal,manifestação contextual,F001|F006,,Não diagnostica síndrome cardiorrenal isoladamente.
+AS013,S013,IAM / Síndrome Coronariana Aguda,manifestação principal,F002|F003,A005|A007|A009|A012|A013|A014|A015|A016|A017|A018|A019|A020,"Qualidade, duração, irradiação e alívio são relevantes."
+AS014,S001,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Interpretar em conjunto.
+AS015,S014,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Sudorese/suor frio.
+AS016,S015,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Náusea.
+AS017,S016,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Vômito.
+AS018,S017,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Tontura/pré-síncope.
+AS019,S018,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Síncope.
+AS020,S019,IAM / Síndrome Coronariana Aguda,sintoma associado,F002,,Palidez.
+AS021,S020,IAM / Síndrome Coronariana Aguda,sintoma associado,F003,,Não específica.
+AS022,S013,Angina / Doença Coronariana,manifestação principal,F004|F005,A003|A004|A006|A010|A019|A020,Esforço/estresse e melhora com repouso são úteis.
+AS023,S001,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,,Pode acompanhar o quadro.
+AS024,S004,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,,Pode acompanhar o quadro.
+AS025,S015,Angina / Doença Coronariana,sintoma associado,F004|F005,,Pode acompanhar o quadro.
+AS026,S021,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Edema não determina síndrome cardiorrenal.
+AS027,S012,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Integrar com função renal e contexto.
+AS028,S001,Congestão / contexto cardiorrenal,manifestação compartilhada,F006|F007,,Não específica.

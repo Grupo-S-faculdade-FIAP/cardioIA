@@ -1,0 +1,98 @@
+﻿expressao_id,conceito_id,expressao,contexto,origem_expressao
+E001,S001,falta de ar,variante lexical,simulada
+E002,S001,ficar sem ar,variante lexical,simulada
+E003,S001,fico sem ar,variante lexical,simulada
+E004,S001,ficando sem ar,variante lexical,simulada
+E005,S001,dificuldade para respirar,variante lexical,simulada
+E006,S001,respiração difícil,variante lexical,simulada
+E007,S002,falta de ar quando me deito,variante lexical,simulada
+E008,S002,falta de ar ao deitar,variante lexical,simulada
+E009,S002,respiração piora quando me deito,variante lexical,simulada
+E010,S002,respiração piora deitado,variante lexical,simulada
+E011,S003,acordo de madrugada com falta de ar,variante lexical,simulada
+E012,S003,acordo à noite com falta de ar,variante lexical,simulada
+E013,S003,falta de ar me acorda,variante lexical,simulada
+E014,S003,acordo sem conseguir respirar,variante lexical,simulada
+E015,S004,muito cansado,variante lexical,simulada
+E016,S004,muito cansada,variante lexical,simulada
+E017,S004,cansaço,variante lexical,simulada
+E018,S004,cansado com facilidade,variante lexical,simulada
+E019,S004,cansada com facilidade,variante lexical,simulada
+E020,S004,pouca energia,variante lexical,simulada
+E021,S005,preciso parar para descansar,variante lexical,simulada
+E022,S005,dificuldade para subir escadas,variante lexical,simulada
+E023,S005,não consigo caminhar como antes,variante lexical,simulada
+E024,S005,não aguento fazer esforço,variante lexical,simulada
+E025,S005,atividades ficaram mais difíceis,variante lexical,simulada
+E026,S006,tossido de madrugada,variante lexical,simulada
+E027,S006,tosse de madrugada,variante lexical,simulada
+E028,S006,tossindo de madrugada,variante lexical,simulada
+E029,S006,tosse durante a noite,variante lexical,simulada
+E030,S006,tossindo durante a noite,variante lexical,simulada
+E031,S006,tosse piora à noite,variante lexical,simulada
+E032,S007,peso aumentou rapidamente,variante lexical,simulada
+E033,S007,ganhei peso rapidamente,variante lexical,simulada
+E034,S007,ganhei peso nos últimos dias,variante lexical,simulada
+E035,S008,emagreci sem querer,variante lexical,simulada
+E036,S008,perdi peso sem querer,variante lexical,simulada
+E037,S008,perdendo peso sem tentar,variante lexical,simulada
+E038,S009,desconforto na barriga,variante lexical,simulada
+E039,S009,dor na barriga,variante lexical,simulada
+E040,S009,desconforto abdominal,variante lexical,simulada
+E041,S010,perdi o apetite,variante lexical,simulada
+E042,S010,sem vontade de comer,variante lexical,simulada
+E043,S010,apetite diminuiu,variante lexical,simulada
+E044,S011,acordar várias vezes durante a noite para urinar,variante lexical,simulada
+E045,S011,acordo várias vezes à noite para urinar,variante lexical,simulada
+E046,S011,levanto várias vezes à noite para urinar,variante lexical,simulada
+E047,S011,levanto muito à noite para fazer xixi,variante lexical,simulada
+E048,S012,urinando bem menos que antes,variante lexical,simulada
+E049,S012,urinando menos que antes,variante lexical,simulada
+E050,S012,fazendo pouca urina,variante lexical,simulada
+E051,S012,quantidade de urina diminuiu,variante lexical,simulada
+E052,S013,dor no peito,variante lexical,simulada
+E053,S013,desconforto no peito,variante lexical,simulada
+E054,S013,aperto no peito,variante lexical,simulada
+E055,S013,pressão no peito,variante lexical,simulada
+E056,S013,peso no peito,variante lexical,simulada
+E057,S013,opressão no peito,variante lexical,simulada
+E058,S013,desconforto torácico,variante lexical,simulada
+E059,S014,suar frio,variante lexical,simulada
+E060,S014,suor frio,variante lexical,simulada
+E061,S014,suando muito,variante lexical,simulada
+E062,S014,sudorese,variante lexical,simulada
+E063,S015,sentir enjoo,variante lexical,simulada
+E064,S015,sinto enjoo,variante lexical,simulada
+E065,S015,enjoo,variante lexical,simulada
+E066,S015,náusea,variante lexical,simulada
+E067,S015,vontade de vomitar,variante lexical,simulada
+E068,S016,vomitei,variante lexical,simulada
+E069,S016,comecei a vomitar,variante lexical,simulada
+E070,S016,vômito,variante lexical,simulada
+E071,S017,fiquei tonto,variante lexical,simulada
+E072,S017,fiquei tonta,variante lexical,simulada
+E073,S017,vou desmaiar,variante lexical,simulada
+E074,S017,ia desmaiar,variante lexical,simulada
+E075,S017,quase desmaiei,variante lexical,simulada
+E076,S017,tontura,variante lexical,simulada
+E077,S018,desmaiei,variante lexical,simulada
+E078,S018,perdi a consciência,variante lexical,simulada
+E079,S019,muito pálido,variante lexical,simulada
+E080,S019,muito pálida,variante lexical,simulada
+E081,S019,fiquei pálido,variante lexical,simulada
+E082,S019,fiquei pálida,variante lexical,simulada
+E083,S020,coração disparado,variante lexical,simulada
+E084,S020,coração batendo muito forte,variante lexical,simulada
+E085,S020,palpitações,variante lexical,simulada
+E086,S021,pernas inchadas,variante lexical,simulada
+E087,S021,pernas estão inchadas,variante lexical,simulada
+E088,S021,tornozelos inchados,variante lexical,simulada
+E089,S021,tornozelos começaram a inchar,variante lexical,simulada
+E090,S021,inchaço nas pernas,variante lexical,simulada
+E091,S002,quando me deito para dormir,posição deitada,simulada
+E092,S003,acordo de madrugada com muita falta de ar,sono/noturno,simulada
+E093,S004,me deixando mais cansado,geral,simulada
+E094,S004,me canso rapidamente,geral,simulada
+E095,S013,aperto forte no peito,torácico,simulada
+E096,S021,ficar inchados,periférico,simulada
+E097,S021,pernas e meus tornozelos começaram a ficar inchados,periférico,simulada
