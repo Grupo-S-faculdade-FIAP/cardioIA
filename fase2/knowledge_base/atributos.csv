@@ -1,0 +1,24 @@
+﻿atributo_id,tipo,valor_normalizado,expressoes_gatilho
+A001,posição,deitado,quando me deito|ao me deitar|quando estou deitado|deitado para dormir
+A002,posição,sentado,estava sentado|ficar sentado|me sento|sentado na cama
+A003,desencadeante,esforço,faço esforço|fazia esforço|subo escadas|caminho rápido|quando caminho|atividade física|bastante esforço
+A004,desencadeante,estresse emocional,quando fico nervoso|estresse emocional
+A005,desencadeante,repouso,estava sentado|estando parado|mesmo estando parado|em repouso
+A006,alívio,melhora com repouso,quando paro e descanso ela melhora|melhora quando descanso|melhora quando paro|passa quando descanso
+A007,alívio,não melhora com repouso,não melhorou|não melhora quando descanso|não passa com repouso
+A008,temporalidade,noturno,durante a noite|de madrugada|à noite|para dormir
+A009,temporalidade,início súbito,comecei de repente|começou de repente|de repente
+A010,temporalidade,recorrente/previsível,toda vez|sempre que|episódios
+A011,temporalidade,progressivo,mais frequência|mais frequente|está piorando|cada vez pior
+A012,duração,duração >20 min,mais de vinte minutos|mais de 20 minutos|há mais de vinte minutos|há mais de 20 minutos|faz mais de vinte minutos|faz mais de 20 minutos
+A013,irradiação,braço,indo para o meu braço|vai para o braço|indo para o braço|dor para o braço
+A014,irradiação,ombro,vai para o ombro|dor para o ombro
+A015,irradiação,mandíbula,vai para a mandíbula|chega à mandíbula
+A016,irradiação,pescoço,vai para o pescoço|sobe para o pescoço
+A017,irradiação,costas/dorso,vai para as costas|indo para as costas
+A018,irradiação,epigástrio,boca do estômago|região epigástrica
+A019,qualidade_torácica,aperto/pressão,aperto no peito|pressão no peito|aperto no tórax|pressão no tórax|aperto forte no peito
+A020,qualidade_torácica,peso/opressão,peso no peito|opressão no peito|peso no tórax|opressão no tórax
+A021,padrão,aumento de frequência,mais frequência|mais frequente|acontecendo mais vezes
+A022,padrão,aumento de intensidade,cada vez mais forte|mais intenso|mais intensa
+A023,padrão,menor limiar de esforço,atividades mais leves|com menos esforço|esforço menor
