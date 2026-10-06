@@ -14,7 +14,7 @@
 ## 2. Dados de pacientes
 
 - **Jamais usar dados reais de pacientes.** Todos os relatos e frases são sintéticos ou anonimizados.
-- Todo dataset deve ter um arquivo `LINHAGEM.md` na mesma pasta, descrevendo: origem, método de geração, responsável, data e critérios de inclusão.
+- Todo dataset deve ter um arquivo `<dataset>_LINHAGEM.md` na mesma pasta (padrão da Fase 1), descrevendo: origem, método de geração, responsável, data e critérios de inclusão.
 - O conjunto de **teste manual** (`particao=teste`, `origem=manual`) é **intocável após criação**: nunca adicionar, editar ou remover linhas sem aprovação explícita da equipe + revisão da Dra. Fernanda.
 
 ## 3. Avisos clínicos obrigatórios
@@ -37,15 +37,14 @@ Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 ```
 fase2/
   config/           ← metas_avaliacao.json
-  data/             ← frases_risco.csv, casos_comportamento.csv, LINHAGEM.md
-  knowledge_base/   ← 5 CSVs (conceitos, expressoes, atributos, associacoes, fontes)
-  notebooks/        ← 01_mapa_conhecimento.ipynb, 02_classificador.ipynb, 03_analise_vieses.ipynb
-  reports/          ← JSONs gerados por avaliacao.py (não versionar)
-  src/              ← extrator_sintomas.py, analisador_clinico.py, carregador_base.py,
-                       contrato_dataset.py, avaliacao.py, main.py
-  tests/            ← test_base_conhecimento.py, test_extrator_golden.py,
-                       test_comportamento.py, test_contrato_dataset.py, test_avaliacao.py
-                       conftest.py, golden/
+  data/             ← relatos_pacientes.txt, frases_risco.csv (+ _LINHAGEM.md), casos_comportamento.csv
+  knowledge_base/   ← 5 CSVs normalizados (conceitos, expressoes, atributos, associacoes, fontes)
+                       + mapa_conhecimento.csv (DERIVADO — não editar à mão)
+  notebooks/        ← 01_extracao_sintomas.ipynb, 02_classificador_risco.ipynb, 03_analise_vieses.ipynb
+  reports/          ← metricas_todos.json gerado por avaliacao.py (versionado: é o resultado oficial)
+  src/              ← extrator_sintomas.py, analisador_clinico.py, carregador_base.py, main.py,
+                       gerar_mapa_conhecimento.py, vieses.py, contrato_dataset.py, avaliacao.py
+  tests/            ← um arquivo por contrato/requisito do SDD + conftest.py + golden/
 ```
 
 ## 6. Base de conhecimento (knowledge_base/)
@@ -53,6 +52,9 @@ fase2/
 - Os 5 CSVs formam um grafo de entidades: ver SDD §3 para esquema e contratos.
 - **IDs são imutáveis** após atribuídos. Novos registros recebem o próximo ID na sequência.
 - Toda edição de `fase2/knowledge_base/*.csv` **dispara automaticamente** os testes de contrato via hook PostToolUse.
+- Depois de editar a base, regenerar o mapa derivado: `python fase2/src/gerar_mapa_conhecimento.py` (o hook acusa se esquecer).
+- Expressão com adjetivo flexionado em quem relata ("estava sentado") exige a forma do outro gênero ("estava sentada") — contrato de paridade de gênero (SDD §3, regra 10).
+- Mudança de associação, peso ou condição esperada no golden é decisão clínica: registrar justificativa e marcar como pendente de validação da Dra. Fernanda.
 - Não adicionar colunas extras sem atualizar `test_base_conhecimento.py` e o SDD.
 
 ## 7. Harness de testes

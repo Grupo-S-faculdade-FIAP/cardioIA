@@ -11,11 +11,15 @@ on:
     branches: [main]
     paths:
       - "fase2/**"
+      - ".spec/SDD-fase2-nlp-triagem.md"
 
 jobs:
   harness:
-    name: Harness de Testes
+    name: Harness de testes
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fase2
 
     steps:
       - uses: actions/checkout@v4
@@ -28,31 +32,24 @@ jobs:
           cache-dependency-path: fase2/requirements.txt
 
       - name: Instalar dependências
-        run: pip install -r fase2/requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Rodar suite de testes
-        run: |
-          cd fase2
-          python -m pytest tests/ -v \
-            --tb=short \
-            --no-header \
-            -p no:cacheprovider \
-            --color=yes
-        env:
-          PYTHONPATH: fase2/src
+      # pytest.ini já coloca src/ no caminho; inclui o gate de metas do
+      # classificador (test_metas_dataset_real) quando frases_risco.csv existe.
+      - name: Rodar o harness
+        run: python -m pytest -v --tb=short --no-header -p no:cacheprovider --color=yes
 
-      - name: Verificar execução do pipeline principal
+      - name: Rodar o extrator nos 10 relatos
+        run: python src/main.py
+
+      - name: Conferir se o mapa derivado está atualizado
         run: |
-          cd fase2
-          python src/main.py
-        env:
-          PYTHONPATH: fase2/src
+          python src/gerar_mapa_conhecimento.py
+          git diff --exit-code -- knowledge_base/mapa_conhecimento.csv
 
   notebooks:
-    name: Executar Notebooks
+    name: Executar notebooks
     runs-on: ubuntu-latest
-    # Roda apenas se frases_risco.csv existir (notebooks de ML dependem do dataset)
-    # Em PRs sem o dataset, este job é marcado como "skipped" via continue-on-error
 
     steps:
       - uses: actions/checkout@v4
@@ -67,35 +64,15 @@ jobs:
       - name: Instalar dependências (com Jupyter)
         run: pip install -r fase2/requirements.txt
 
-      - name: Executar notebook 01 — Mapa de Conhecimento
-        if: hashFiles('fase2/notebooks/01_mapa_conhecimento.ipynb') != ''
-        run: |
-          jupyter nbconvert --to notebook \
-            --execute \
-            --inplace \
-            --ExecutePreprocessor.timeout=120 \
-            fase2/notebooks/01_mapa_conhecimento.ipynb
-        env:
-          PYTHONPATH: fase2/src
+      # Cada notebook localiza fase2/src sozinho; só roda se o arquivo existir.
+      - name: Notebook 01 — extração de sintomas
+        if: hashFiles('fase2/notebooks/01_extracao_sintomas.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=120 fase2/notebooks/01_extracao_sintomas.ipynb
 
-      - name: Executar notebook 02 — Classificador
-        if: hashFiles('fase2/notebooks/02_classificador.ipynb') != '' && hashFiles('fase2/data/frases_risco.csv') != ''
-        run: |
-          jupyter nbconvert --to notebook \
-            --execute \
-            --inplace \
-            --ExecutePreprocessor.timeout=300 \
-            fase2/notebooks/02_classificador.ipynb
-        env:
-          PYTHONPATH: fase2/src
+      - name: Notebook 02 — classificador de risco
+        if: hashFiles('fase2/notebooks/02_classificador_risco.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=300 fase2/notebooks/02_classificador_risco.ipynb
 
-      - name: Executar notebook 03 — Análise de Vieses
-        if: hashFiles('fase2/notebooks/03_analise_vieses.ipynb') != '' && hashFiles('fase2/data/frases_risco.csv') != ''
-        run: |
-          jupyter nbconvert --to notebook \
-            --execute \
-            --inplace \
-            --ExecutePreprocessor.timeout=300 \
-            fase2/notebooks/03_analise_vieses.ipynb
-        env:
-          PYTHONPATH: fase2/src
+      - name: Notebook 03 — análise de vieses
+        if: hashFiles('fase2/notebooks/03_analise_vieses.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=300 fase2/notebooks/03_analise_vieses.ipynb

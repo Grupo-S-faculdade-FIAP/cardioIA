@@ -1,86 +1,81 @@
 ---
 name: checklist-entrega
-description: Checklist completo de entrega da Fase 2 do CardioIA — verifica todos os critérios do enunciado
+description: Confere a entrega da Fase 2 do CardioIA contra a rubrica de 10 pontos do enunciado e lista pendências
 ---
 
 # Checklist de Entrega — Fase 2
 
-Percorrer cada item, verificar o estado atual e reportar o que está ✅ ok, ⚠️ parcial ou ❌ ausente.
+Percorrer cada item, verificar o estado **real** (rodar os comandos, não supor) e reportar ✅ ok, ⚠️ parcial ou ❌ ausente.
 
-## Parte 1 — Extrator de Sintomas (C1)
-
-```bash
-cd fase2 && python -m pytest tests/test_extrator_golden.py tests/test_base_conhecimento.py -v 2>&1 | tail -20
-python src/main.py 2>&1 | head -40
-```
-
-- [ ] `fase2/src/extrator_sintomas.py` — normalização + extração de conceitos e atributos
-- [ ] `fase2/src/analisador_clinico.py` — ranqueamento por condição com score explicativo
-- [ ] `fase2/knowledge_base/` — 5 CSVs: conceitos (≥21), expressoes (≥97), atributos (≥23), associacoes (≥28), fontes (≥7)
-- [ ] Golden tests passando para RELATO 01 e RELATO 04
-- [ ] `fase2/notebooks/01_mapa_conhecimento.ipynb` — demonstra extração nos 10 relatos
-- [ ] Saída em PT-BR, UTF-8, sem traceback
-
-## Parte 2 — Classificador de Risco (C2)
+## 0. Harness (pré-condição de tudo)
 
 ```bash
-ls fase2/data/frases_risco.csv 2>/dev/null && python -c "
-import sys; sys.path.insert(0,'fase2/src')
-import pandas as pd
-df = pd.read_csv('fase2/data/frases_risco.csv')
-print(f'Total: {len(df)} | Teste manual: {len(df[df.particao==\"teste\"])} | Alto: {(df.situacao==\"alto risco\").mean():.0%}')
-"
+cd fase2 && python -m pytest -q --no-header -p no:cacheprovider 2>&1 | tail -5
 ```
 
-- [ ] `fase2/data/frases_risco.csv` — ≥200 frases, ≥40 teste manual, ≥35% por classe, sem templates no teste
-- [ ] `fase2/data/LINHAGEM.md` — descreve origem, critérios e responsável pelo dataset
-- [ ] `fase2/notebooks/02_classificador.ipynb` — TF-IDF + 3 modelos + CV + curvas + relatório
-- [ ] Gates: recall_alto_risco ≥ 0.90 AND acuracia ≥ 0.80 no conjunto teste
+- [ ] Suíte verde; os únicos `xfail` são limitações documentadas no SDD §7
+- [ ] Nenhum teste `skipped` por falta de `frases_risco.csv`
 
-## Análise de Vieses (C3)
+## 1. Relatos e mapa de conhecimento organizados — 2 pts
+
+- [ ] `fase2/data/relatos_pacientes.txt` — 10 relatos com sintoma, início e impacto na rotina
+- [ ] `fase2/knowledge_base/` — 5 CSVs normalizados + `README.md`
+- [ ] `fase2/knowledge_base/mapa_conhecimento.csv` — formato `sintoma_1,sintoma_2,doenca_associada`, sincronizado (`python fase2/src/gerar_mapa_conhecimento.py` não gera diff)
+
+## 2. Código de extração funcional — 2 pts
 
 ```bash
-cd fase2 && python -m pytest tests/test_comportamento.py -v 2>&1 | tail -20
+python fase2/src/main.py | tail -16
 ```
 
-- [ ] `fase2/data/casos_comportamento.csv` — ≥15 casos: negação, gênero, acento, coloquial, atípico
-- [ ] `fase2/notebooks/03_analise_vieses.ipynb` — testes de comportamento + cruzamento com PNS 2013
-- [ ] Negação documentada como xfail no SDD §7 (limitação conhecida)
+- [ ] `main.py` roda sem traceback, com acentos corretos, e termina no aviso clínico
+- [ ] Os 10 relatos têm sugestão principal única e igual ao golden (`tests/golden/relatos_esperados.json`)
+- [ ] `fase2/notebooks/01_extracao_sintomas.ipynb` executado, com saídas salvas
 
-## Harness e Ferramentas
+## 3. Dataset simples criado corretamente — 1 pt
 
 ```bash
-cd fase2 && python -m pytest tests/ -v 2>&1 | tail -5
+cd fase2 && python -m pytest tests/test_contrato_dataset.py -q --no-header
 ```
 
-- [ ] `fase2/pytest.ini` com `xfail_strict = true`
-- [ ] `fase2/requirements.txt` completo
-- [ ] `.spec/SDD-fase2-nlp-triagem.md` — contratos, limitações, metas
-- [ ] `.claude/hooks/validar_base_conhecimento.py` + `.claude/settings.json` — hook ativo
-- [ ] `.github/workflows/ci-fase2.yml` — CI rodando pytest
+- [ ] `fase2/data/frases_risco.csv` — colunas `frase,situacao` (+ `origem,particao`), ≥ 200 frases, ≥ 40 de teste manual, ≥ 35% por classe
+- [ ] `fase2/data/frases_risco_LINHAGEM.md` — origem, autoria, critério de rótulo, contagens, limitações
 
-## README e Documentação
+## 4. Classificador treinado e testado corretamente — 2 pts
 
 ```bash
-head -30 README.md
-head -30 fase2/README.md 2>/dev/null || echo "fase2/README.md ausente"
+python fase2/src/avaliacao.py --modelo todos
 ```
 
-- [ ] `README.md` raiz — lista todos os integrantes com nome completo e RM
-- [ ] Link para o vídeo de apresentação (YouTube/Drive)
-- [ ] `fase2/README.md` — instruções de execução da Fase 2
+- [ ] Metas cumpridas: `recall_alto_risco ≥ 0,90` e `acuracia ≥ 0,80` no teste manual
+- [ ] `fase2/reports/metricas_todos.json` versionado e coerente com a execução atual
+- [ ] `fase2/notebooks/02_classificador_risco.ipynb` executado: TF-IDF, comparação de modelos, matriz de confusão, termos mais influentes, análise de erros
+- [ ] `fase2/notebooks/03_analise_vieses.ipynb` executado: comportamento (negação, gênero, acento, coloquial, atípico) + cruzamento com PNS 2013
 
-## Aviso Clínico
+## 5. Documentação e repositório público — 1 pt
 
-- [ ] Todo notebook exportado contém o aviso:
+- [ ] `README.md` da raiz descreve a Fase 2 (não só a Fase 1) e aponta para `fase2/`
+- [ ] `fase2/README.md` com instruções de execução, resultados e limitações
+- [ ] Integrantes com **nome completo e RM**
+- [ ] Repositório **público** no GitHub (`gh repo view --json visibility`)
+- [ ] CI (`.github/workflows/ci-fase2.yml`) verde no último push
+
+## 6. Vídeo — 2 pts
+
+- [ ] Vídeo de até 4 min no YouTube como **não listado**
+- [ ] Link no README do repositório
+
+## 7. Governança
+
+- [ ] Todo notebook e README público contém o aviso:
   > ⚠️ AVISO CLÍNICO: Este sistema é um protótipo acadêmico e NÃO substitui avaliação médica. Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
+- [ ] Pendências de validação clínica listadas (SDD §7) e comunicadas à Dra. Fernanda
 
 ## Resumo final
 
-Ao terminar o checklist, apresentar:
 ```
 FASE 2 — STATUS DE ENTREGA
-✅ Concluídos: X/Y itens
+✅ Concluídos: X/Y itens   (pontos garantidos: N/10)
 ⚠️ Parciais: ...
 ❌ Ausentes: ...
 Próxima ação prioritária: ...
