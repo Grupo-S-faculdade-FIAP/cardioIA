@@ -6,8 +6,8 @@
   "RELATO 04": {"conceitos": ["S013", "S014", "S015"], "atributos": ["A007", "A009", "A012", "A013"], "condicao_principal": "IAM / Síndrome Coronariana Aguda"},
   "RELATO 05": {"conceitos": ["S013", "S017", "S019"], "atributos": [], "condicao_principal": "IAM / Síndrome Coronariana Aguda"},
   "RELATO 06": {"conceitos": ["S013"], "atributos": ["A003", "A006"], "condicao_principal": "Angina / Doença Coronariana"},
-  "RELATO 07": {"conceitos": ["S013"], "atributos": ["A011", "A023"], "condicao_principal": "IAM / Síndrome Coronariana Aguda", "pendencia": "empate IAM x Angina; angina em crescendo e em repouso = SCA (SDD §7)"},
-  "RELATO 08": {"conceitos": ["S001", "S004", "S012", "S021"], "atributos": [], "condicao_principal": "Congestão / contexto cardiorrenal", "pendencia": "empate triplo; condição esperada a confirmar com a equipe/Dra. Fernanda (SDD §7)"},
+  "RELATO 07": {"conceitos": ["S013"], "atributos": ["A005", "A011", "A023"], "condicao_principal": "IAM / Síndrome Coronariana Aguda", "justificativa": "Angina em crescendo (mais frequente, com esforço menor) e já em repouso é angina instável, parte da SCA (AS013; F002/F003)."},
+  "RELATO 08": {"conceitos": ["S001", "S004", "S012", "S021"], "atributos": ["A003"], "condicao_principal": "Insuficiência Cardíaca", "segunda_hipotese": "Congestão / contexto cardiorrenal", "justificativa": "Edema, oligúria, dispneia aos esforços e fadiga: quadro congestivo de IC (F001). Pela regra da base, edema/oligúria não diagnosticam síndrome cardiorrenal isoladamente, por isso o contexto cardiorrenal é a 2ª hipótese. Pendente de validação clínica (Dra. Fernanda Fassina)."},
   "RELATO 09": {"conceitos": ["S004", "S006", "S007", "S011"], "atributos": ["A008"], "condicao_principal": "Insuficiência Cardíaca"},
   "RELATO 10": {"conceitos": ["S004", "S008", "S009", "S010"], "atributos": [], "condicao_principal": "Insuficiência Cardíaca"}
 }

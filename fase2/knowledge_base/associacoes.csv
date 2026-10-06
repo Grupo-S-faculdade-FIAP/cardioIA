@@ -10,8 +10,8 @@ AS008,S008,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específic
 AS009,S009,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específico isoladamente.
 AS010,S010,Insuficiência Cardíaca,sintoma menos típico,F001,,Pouco específico isoladamente.
 AS011,S011,Insuficiência Cardíaca,sintoma menos típico,F001,A008,Contexto noturno essencial.
-AS012,S012,Insuficiência Cardíaca / contexto cardiorrenal,manifestação contextual,F001|F006,,Não diagnostica síndrome cardiorrenal isoladamente.
-AS013,S013,IAM / Síndrome Coronariana Aguda,manifestação principal,F002|F003,A005|A007|A009|A012|A013|A014|A015|A016|A017|A018|A019|A020,"Qualidade, duração, irradiação e alívio são relevantes."
+AS012,S012,Insuficiência Cardíaca,sintoma menos típico,F001|F006,,Oligúria é sintoma menos típico de IC (F001); não diagnostica síndrome cardiorrenal isoladamente.
+AS013,S013,IAM / Síndrome Coronariana Aguda,manifestação principal,F002|F003,A005|A007|A009|A011|A012|A013|A014|A015|A016|A017|A018|A019|A020|A021|A022|A023,"Qualidade, duração, irradiação e alívio são relevantes. Dor que piora, surge com esforço menor ou em repouso (crescendo) é angina instável, parte da SCA."
 AS014,S001,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Interpretar em conjunto.
 AS015,S014,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Sudorese/suor frio.
 AS016,S015,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Náusea.
@@ -27,3 +27,4 @@ AS025,S015,Angina / Doença Coronariana,sintoma associado,F004|F005,,Pode acompa
 AS026,S021,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Edema não determina síndrome cardiorrenal.
 AS027,S012,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Integrar com função renal e contexto.
 AS028,S001,Congestão / contexto cardiorrenal,manifestação compartilhada,F006|F007,,Não específica.
+AS029,S021,Insuficiência Cardíaca,sintoma menos típico,F001,,Edema periférico é sinal menos específico de IC (F001); interpretar com o contexto.

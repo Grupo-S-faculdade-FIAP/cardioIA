@@ -1,0 +1,83 @@
+﻿sintoma_1,sintoma_2,doenca_associada,conceito_clinico,tipo_relacao,peso,fontes,associacao_id
+falta de ar,ficar sem ar,Insuficiência Cardíaca,Dispneia,sintoma típico,2,F001,AS001
+fico sem ar,ficando sem ar,Insuficiência Cardíaca,Dispneia,sintoma típico,2,F001,AS001
+dificuldade para respirar,respiração difícil,Insuficiência Cardíaca,Dispneia,sintoma típico,2,F001,AS001
+falta de ar quando me deito,falta de ar ao deitar,Insuficiência Cardíaca,Ortopneia,sintoma típico,2,F001,AS002
+respiração piora quando me deito,respiração piora deitado,Insuficiência Cardíaca,Ortopneia,sintoma típico,2,F001,AS002
+quando me deito para dormir,respiração piora deitada,Insuficiência Cardíaca,Ortopneia,sintoma típico,2,F001,AS002
+acordo de madrugada com falta de ar,acordo à noite com falta de ar,Insuficiência Cardíaca,Dispneia paroxística noturna,sintoma típico,2,F001,AS003
+falta de ar me acorda,acordo sem conseguir respirar,Insuficiência Cardíaca,Dispneia paroxística noturna,sintoma típico,2,F001,AS003
+acordo de madrugada com muita falta de ar,acordo de madrugada com falta de ar,Insuficiência Cardíaca,Dispneia paroxística noturna,sintoma típico,2,F001,AS003
+muito cansado,muito cansada,Insuficiência Cardíaca,Fadiga/cansaço,sintoma típico,2,F001,AS004
+cansaço,cansado com facilidade,Insuficiência Cardíaca,Fadiga/cansaço,sintoma típico,2,F001,AS004
+cansada com facilidade,pouca energia,Insuficiência Cardíaca,Fadiga/cansaço,sintoma típico,2,F001,AS004
+me deixando mais cansado,me canso rapidamente,Insuficiência Cardíaca,Fadiga/cansaço,sintoma típico,2,F001,AS004
+me deixando mais cansada,muito cansado,Insuficiência Cardíaca,Fadiga/cansaço,sintoma típico,2,F001,AS004
+preciso parar para descansar,dificuldade para subir escadas,Insuficiência Cardíaca,Intolerância ao exercício,sintoma típico,2,F001,AS005
+não consigo caminhar como antes,não aguento fazer esforço,Insuficiência Cardíaca,Intolerância ao exercício,sintoma típico,2,F001,AS005
+atividades ficaram mais difíceis,preciso parar para descansar,Insuficiência Cardíaca,Intolerância ao exercício,sintoma típico,2,F001,AS005
+tossido de madrugada,tosse de madrugada,Insuficiência Cardíaca,Tosse noturna,sintoma menos típico,1,F001,AS006
+tossindo de madrugada,tosse durante a noite,Insuficiência Cardíaca,Tosse noturna,sintoma menos típico,1,F001,AS006
+tossindo durante a noite,tosse piora à noite,Insuficiência Cardíaca,Tosse noturna,sintoma menos típico,1,F001,AS006
+peso aumentou rapidamente,ganhei peso rapidamente,Insuficiência Cardíaca,Ganho de peso,sintoma menos típico,1,F001,AS007
+ganhei peso nos últimos dias,peso aumentou rapidamente,Insuficiência Cardíaca,Ganho de peso,sintoma menos típico,1,F001,AS007
+emagreci sem querer,perdi peso sem querer,Insuficiência Cardíaca,Perda de peso,sintoma menos típico,1,F001,AS008
+perdendo peso sem tentar,emagreci sem querer,Insuficiência Cardíaca,Perda de peso,sintoma menos típico,1,F001,AS008
+desconforto na barriga,dor na barriga,Insuficiência Cardíaca,Dor abdominal,sintoma menos típico,1,F001,AS009
+desconforto abdominal,desconforto na barriga,Insuficiência Cardíaca,Dor abdominal,sintoma menos típico,1,F001,AS009
+perdi o apetite,sem vontade de comer,Insuficiência Cardíaca,Perda de apetite,sintoma menos típico,1,F001,AS010
+apetite diminuiu,perdi o apetite,Insuficiência Cardíaca,Perda de apetite,sintoma menos típico,1,F001,AS010
+acordar várias vezes durante a noite para urinar,acordo várias vezes à noite para urinar,Insuficiência Cardíaca,Noctúria,sintoma menos típico,1,F001,AS011
+levanto várias vezes à noite para urinar,levanto muito à noite para fazer xixi,Insuficiência Cardíaca,Noctúria,sintoma menos típico,1,F001,AS011
+urinando bem menos que antes,urinando menos que antes,Insuficiência Cardíaca,Oligúria,sintoma menos típico,1,F001|F006,AS012
+fazendo pouca urina,quantidade de urina diminuiu,Insuficiência Cardíaca,Oligúria,sintoma menos típico,1,F001|F006,AS012
+dor no peito,desconforto no peito,IAM / Síndrome Coronariana Aguda,Dor/desconforto torácico,manifestação principal,3,F002|F003,AS013
+aperto no peito,pressão no peito,IAM / Síndrome Coronariana Aguda,Dor/desconforto torácico,manifestação principal,3,F002|F003,AS013
+peso no peito,opressão no peito,IAM / Síndrome Coronariana Aguda,Dor/desconforto torácico,manifestação principal,3,F002|F003,AS013
+desconforto torácico,aperto forte no peito,IAM / Síndrome Coronariana Aguda,Dor/desconforto torácico,manifestação principal,3,F002|F003,AS013
+falta de ar,ficar sem ar,IAM / Síndrome Coronariana Aguda,Dispneia,sintoma associado,1,F002|F003,AS014
+fico sem ar,ficando sem ar,IAM / Síndrome Coronariana Aguda,Dispneia,sintoma associado,1,F002|F003,AS014
+dificuldade para respirar,respiração difícil,IAM / Síndrome Coronariana Aguda,Dispneia,sintoma associado,1,F002|F003,AS014
+suar frio,suor frio,IAM / Síndrome Coronariana Aguda,Sudorese,sintoma associado,1,F002|F003,AS015
+suando muito,sudorese,IAM / Síndrome Coronariana Aguda,Sudorese,sintoma associado,1,F002|F003,AS015
+sentir enjoo,sinto enjoo,IAM / Síndrome Coronariana Aguda,Náusea,sintoma associado,1,F002|F003,AS016
+enjoo,náusea,IAM / Síndrome Coronariana Aguda,Náusea,sintoma associado,1,F002|F003,AS016
+vontade de vomitar,sentir enjoo,IAM / Síndrome Coronariana Aguda,Náusea,sintoma associado,1,F002|F003,AS016
+vomitei,comecei a vomitar,IAM / Síndrome Coronariana Aguda,Vômito,sintoma associado,1,F002|F003,AS017
+vômito,vomitei,IAM / Síndrome Coronariana Aguda,Vômito,sintoma associado,1,F002|F003,AS017
+fiquei tonto,fiquei tonta,IAM / Síndrome Coronariana Aguda,Tontura/pré-síncope,sintoma associado,1,F002|F003,AS018
+vou desmaiar,ia desmaiar,IAM / Síndrome Coronariana Aguda,Tontura/pré-síncope,sintoma associado,1,F002|F003,AS018
+quase desmaiei,tontura,IAM / Síndrome Coronariana Aguda,Tontura/pré-síncope,sintoma associado,1,F002|F003,AS018
+desmaiei,perdi a consciência,IAM / Síndrome Coronariana Aguda,Síncope,sintoma associado,1,F002|F003,AS019
+muito pálido,muito pálida,IAM / Síndrome Coronariana Aguda,Palidez,sintoma associado,1,F002,AS020
+fiquei pálido,fiquei pálida,IAM / Síndrome Coronariana Aguda,Palidez,sintoma associado,1,F002,AS020
+coração disparado,coração batendo muito forte,IAM / Síndrome Coronariana Aguda,Palpitações,sintoma associado,1,F003,AS021
+palpitações,coração disparado,IAM / Síndrome Coronariana Aguda,Palpitações,sintoma associado,1,F003,AS021
+dor no peito,desconforto no peito,Angina / Doença Coronariana,Dor/desconforto torácico,manifestação principal,3,F004|F005,AS022
+aperto no peito,pressão no peito,Angina / Doença Coronariana,Dor/desconforto torácico,manifestação principal,3,F004|F005,AS022
+peso no peito,opressão no peito,Angina / Doença Coronariana,Dor/desconforto torácico,manifestação principal,3,F004|F005,AS022
+desconforto torácico,aperto forte no peito,Angina / Doença Coronariana,Dor/desconforto torácico,manifestação principal,3,F004|F005,AS022
+falta de ar,ficar sem ar,Angina / Doença Coronariana,Dispneia,sintoma associado,1,F004|F005,AS023
+fico sem ar,ficando sem ar,Angina / Doença Coronariana,Dispneia,sintoma associado,1,F004|F005,AS023
+dificuldade para respirar,respiração difícil,Angina / Doença Coronariana,Dispneia,sintoma associado,1,F004|F005,AS023
+muito cansado,muito cansada,Angina / Doença Coronariana,Fadiga/cansaço,sintoma associado,1,F004|F005,AS024
+cansaço,cansado com facilidade,Angina / Doença Coronariana,Fadiga/cansaço,sintoma associado,1,F004|F005,AS024
+cansada com facilidade,pouca energia,Angina / Doença Coronariana,Fadiga/cansaço,sintoma associado,1,F004|F005,AS024
+me deixando mais cansado,me canso rapidamente,Angina / Doença Coronariana,Fadiga/cansaço,sintoma associado,1,F004|F005,AS024
+me deixando mais cansada,muito cansado,Angina / Doença Coronariana,Fadiga/cansaço,sintoma associado,1,F004|F005,AS024
+sentir enjoo,sinto enjoo,Angina / Doença Coronariana,Náusea,sintoma associado,1,F004|F005,AS025
+enjoo,náusea,Angina / Doença Coronariana,Náusea,sintoma associado,1,F004|F005,AS025
+vontade de vomitar,sentir enjoo,Angina / Doença Coronariana,Náusea,sintoma associado,1,F004|F005,AS025
+pernas inchadas,pernas estão inchadas,Congestão / contexto cardiorrenal,Edema periférico,manifestação contextual,2,F006|F007,AS026
+tornozelos inchados,tornozelos começaram a inchar,Congestão / contexto cardiorrenal,Edema periférico,manifestação contextual,2,F006|F007,AS026
+inchaço nas pernas,ficar inchados,Congestão / contexto cardiorrenal,Edema periférico,manifestação contextual,2,F006|F007,AS026
+pernas e meus tornozelos começaram a ficar inchados,pernas inchadas,Congestão / contexto cardiorrenal,Edema periférico,manifestação contextual,2,F006|F007,AS026
+urinando bem menos que antes,urinando menos que antes,Congestão / contexto cardiorrenal,Oligúria,manifestação contextual,2,F006|F007,AS027
+fazendo pouca urina,quantidade de urina diminuiu,Congestão / contexto cardiorrenal,Oligúria,manifestação contextual,2,F006|F007,AS027
+falta de ar,ficar sem ar,Congestão / contexto cardiorrenal,Dispneia,manifestação compartilhada,1,F006|F007,AS028
+fico sem ar,ficando sem ar,Congestão / contexto cardiorrenal,Dispneia,manifestação compartilhada,1,F006|F007,AS028
+dificuldade para respirar,respiração difícil,Congestão / contexto cardiorrenal,Dispneia,manifestação compartilhada,1,F006|F007,AS028
+pernas inchadas,pernas estão inchadas,Insuficiência Cardíaca,Edema periférico,sintoma menos típico,1,F001,AS029
+tornozelos inchados,tornozelos começaram a inchar,Insuficiência Cardíaca,Edema periférico,sintoma menos típico,1,F001,AS029
+inchaço nas pernas,ficar inchados,Insuficiência Cardíaca,Edema periférico,sintoma menos típico,1,F001,AS029
+pernas e meus tornozelos começaram a ficar inchados,pernas inchadas,Insuficiência Cardíaca,Edema periférico,sintoma menos típico,1,F001,AS029

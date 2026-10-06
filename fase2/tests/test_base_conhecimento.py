@@ -5,8 +5,10 @@ import re
 
 import pytest
 
+from analisador_clinico import PESOS_RELACAO
 from carregador_base import PASTA_BASE
-from extrator_sintomas import normalizar_texto
+from extrator_sintomas import GATILHOS_NEGACAO, PSEUDO_NEGACOES, normalizar_texto
+from vieses import tem_marca_de_genero, trocar_genero
 
 PADROES_ID = {
     "conceitos.csv": ("conceito_id", r"S\d{3}"),
@@ -118,3 +120,47 @@ def test_campos_obrigatorios_preenchidos(base, tabela, colunas):
 def test_todo_atributo_tem_gatilho(base):
     sem_gatilho = [a["atributo_id"] for a in base["atributos"] if not _lista(a["expressoes_gatilho"])]
     assert not sem_gatilho
+
+
+def test_tipo_relacao_tem_peso_definido(base):
+    sem_peso = sorted({a["tipo_relacao"] for a in base["associacoes"]} - set(PESOS_RELACAO))
+    assert not sem_peso, f"tipo_relacao sem peso em PESOS_RELACAO (SDD §3.2): {sem_peso}"
+
+
+def test_par_conceito_condicao_unico(base):
+    pares = [(a["conceito_id"], a["condicao_associada"]) for a in base["associacoes"]]
+    repetidos = sorted({par for par in pares if pares.count(par) > 1})
+    assert not repetidos, f"pares (conceito, condição) repetidos: {repetidos}"
+
+
+def _frases_da_base(base):
+    """Pares (dono, frase): expressões pertencem a um conceito; gatilhos, a um atributo."""
+    frases = [(e["conceito_id"], e["expressao"]) for e in base["expressoes"]]
+    frases += [(a["atributo_id"], g) for a in base["atributos"] for g in _lista(a["expressoes_gatilho"])]
+    return frases
+
+
+def test_paridade_de_genero(base):
+    frases_do_dono = {}
+    for dono, frase in _frases_da_base(base):
+        frases_do_dono.setdefault(dono, set()).add(normalizar_texto(frase))
+
+    faltando = [
+        f"{dono}: tem '{frase}' mas não '{trocar_genero(frase)}'"
+        for dono, frase in _frases_da_base(base)
+        if tem_marca_de_genero(frase) and normalizar_texto(trocar_genero(frase)) not in frases_do_dono[dono]
+    ]
+    assert not faltando, "SDD §3, regra 10:\n" + "\n".join(faltando)
+
+
+def test_gatilho_de_negacao_dentro_de_expressao_e_pseudo_negacao(base):
+    locucoes = [tuple(p.split()) for p in PSEUDO_NEGACOES]
+    erros = []
+    for dono, frase in _frases_da_base(base):
+        tokens = normalizar_texto(frase).split()
+        for posicao, token in enumerate(tokens):
+            if token in GATILHOS_NEGACAO and not any(
+                tuple(tokens[posicao:posicao + len(locucao)]) == locucao for locucao in locucoes
+            ):
+                erros.append(f"{dono}: '{frase}' — '{token}' negaria o sintoma seguinte")
+    assert not erros, "SDD §3, regra 11 (cadastre a locução em PSEUDO_NEGACOES):\n" + "\n".join(erros)

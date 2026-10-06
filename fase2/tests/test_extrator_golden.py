@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from analisador_clinico import agrupar_por_condicao, analisar_associacoes
+from analisador_clinico import analisar_relato
 from extrator_sintomas import extrair_atributos, extrair_conceitos
 
 ESPERADO = {
@@ -44,14 +44,16 @@ def test_atributos_obrigatorios(relato_id, relatos, base):
 
 @pytest.mark.parametrize("relato_id", CASOS_CONDICAO)
 def test_condicao_principal_unica_e_correta(relato_id, relatos, base):
-    texto = relatos[relato_id]
-    condicoes = agrupar_por_condicao(analisar_associacoes(
-        extrair_conceitos(texto, base["expressoes"]),
-        extrair_atributos(texto, base["atributos"]),
-        base["associacoes"],
-    ))
-    assert condicoes, f"{relato_id}: nenhuma condição sugerida"
-    primeira = condicoes[0]
-    empatadas = [c["condicao"] for c in condicoes if c["pontuacao_explicativa"] == primeira["pontuacao_explicativa"]]
-    assert len(empatadas) == 1, f"{relato_id}: empate entre {empatadas}"
-    assert primeira["condicao"] == ESPERADO[relato_id]["condicao_principal"]
+    analise = analisar_relato(relatos[relato_id], base)
+    sugestao = analise["sugestao"]
+    assert len(sugestao["empatadas"]) == 1, f"{relato_id}: empate entre {sugestao['empatadas']}"
+    assert sugestao["condicao"] == ESPERADO[relato_id]["condicao_principal"]
+
+    if "segunda_hipotese" in ESPERADO[relato_id]:
+        assert analise["condicoes"][1]["condicao"] == ESPERADO[relato_id]["segunda_hipotese"]
+
+
+@pytest.mark.parametrize("relato_id", sorted(ESPERADO))
+def test_relatos_nao_tem_sintoma_negado(relato_id, relatos, base):
+    """Nenhum dos 10 relatos nega sintoma; negação indevida apagaria evidência."""
+    assert analisar_relato(relatos[relato_id], base)["conceitos_negados"] == []
