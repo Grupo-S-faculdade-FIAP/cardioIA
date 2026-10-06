@@ -1,21 +1,33 @@
 """Contrato do dataset de risco (SDD Fase 2, §4)."""
 
+import hashlib
 from pathlib import Path
 
 import pandas as pd
 
 from extrator_sintomas import normalizar_texto
 
-ARQUIVO_DATASET = Path(__file__).resolve().parent.parent / "data" / "frases_risco.csv"
+RAIZ_FASE2 = Path(__file__).resolve().parent.parent
+ARQUIVO_DATASET = RAIZ_FASE2 / "data" / "frases_risco.csv"
+ARQUIVO_TESTE_CONGELADO = RAIZ_FASE2 / "config" / "teste_congelado.json"
 
-COLUNAS = ["frase", "situacao", "origem", "particao"]
+COLUNAS = ["frase", "situacao", "origem", "particao", "criterio"]
 ROTULOS = {"alto risco", "baixo risco"}
 ORIGENS = {"manual", "template"}
 PARTICOES = {"treino", "teste"}
+CRITERIOS = {"A1": "alto risco", "A2": "alto risco", "A3": "alto risco", "A4": "alto risco",
+             "B1": "baixo risco", "B2": "baixo risco", "B3": "baixo risco"}
 
 
 def carregar_dataset_risco(caminho=ARQUIVO_DATASET):
     return pd.read_csv(caminho, encoding="utf-8-sig", dtype=str, keep_default_na=False)
+
+
+def hash_conjunto_teste(df):
+    """SHA-256 das linhas de teste (frase, situação, critério), na ordem do arquivo."""
+    teste = df[df["particao"] == "teste"][["frase", "situacao", "criterio"]]
+    conteudo = "\n".join("\t".join(linha) for linha in teste.itertuples(index=False))
+    return hashlib.sha256(conteudo.encode("utf-8")).hexdigest()
 
 
 def _checar_proporcao(df, nome, proporcao_minima, erros):
@@ -38,10 +50,16 @@ def validar_dataset_risco(df, tamanho_minimo=200, teste_minimo=40, proporcao_min
 
     erros = []
 
-    for coluna, permitidos in (("situacao", ROTULOS), ("origem", ORIGENS), ("particao", PARTICOES)):
+    for coluna, permitidos in (
+        ("situacao", ROTULOS), ("origem", ORIGENS), ("particao", PARTICOES), ("criterio", set(CRITERIOS)),
+    ):
         invalidos = sorted(set(df[coluna]) - permitidos)
         if invalidos:
             erros.append(f"'{coluna}' com valores fora do contrato: {invalidos}")
+
+    incoerentes = df.index[df["criterio"].map(CRITERIOS).fillna(df["situacao"]) != df["situacao"]].tolist()
+    if incoerentes:
+        erros.append(f"critério incoerente com a situação nas linhas {incoerentes}")
 
     vazias = df.index[df["frase"].str.strip() == ""].tolist()
     if vazias:

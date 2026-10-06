@@ -1,0 +1,100 @@
+{
+  "modelo_escolhido": "naive_bayes",
+  "seed": 42,
+  "dataset": {
+    "arquivo": "frases_risco.csv",
+    "sha256": "584cf3c9e99a05ae9b9dd0af92d1e37a64477e6d4f46cc1fc118b6201f75df48",
+    "n_treino": 260,
+    "n_teste": 60
+  },
+  "validacao_cruzada": {
+    "logreg": {
+      "acuracia": {
+        "media": 0.9653846153846153,
+        "desvio": 0.025512498387349206
+      },
+      "recall_alto_risco": {
+        "media": 0.9692307692307693,
+        "desvio": 0.03768445758127964
+      }
+    },
+    "arvore": {
+      "acuracia": {
+        "media": 0.8923076923076924,
+        "desvio": 0.04142434467026543
+      },
+      "recall_alto_risco": {
+        "media": 0.8846153846153847,
+        "desvio": 0.024325212770526013
+      }
+    },
+    "naive_bayes": {
+      "acuracia": {
+        "media": 0.9692307692307691,
+        "desvio": 0.019611613513818398
+      },
+      "recall_alto_risco": {
+        "media": 0.9692307692307693,
+        "desvio": 0.02878197989826107
+      }
+    }
+  },
+  "teste": {
+    "n": 60,
+    "acuracia": 0.9166666666666666,
+    "precisao_alto_risco": 0.9310344827586207,
+    "recall_alto_risco": 0.9,
+    "f1_alto_risco": 0.9152542372881356,
+    "matriz_confusao": {
+      "rotulos": [
+        "baixo risco",
+        "alto risco"
+      ],
+      "valores": [
+        [
+          28,
+          2
+        ],
+        [
+          3,
+          27
+        ]
+      ]
+    }
+  },
+  "metas": {
+    "recall_alto_risco": 0.9,
+    "acuracia": 0.8
+  },
+  "violacoes": [],
+  "comportamento": {
+    "por_tipo": {
+      "negacao": {
+        "acertos": 3,
+        "total": 3,
+        "taxa_acerto": 1.0
+      },
+      "genero": {
+        "acertos": 4,
+        "total": 4,
+        "taxa_acerto": 1.0
+      },
+      "acento": {
+        "acertos": 2,
+        "total": 2,
+        "taxa_acerto": 1.0
+      },
+      "coloquial": {
+        "acertos": 3,
+        "total": 3,
+        "taxa_acerto": 1.0
+      },
+      "atipico": {
+        "acertos": 3,
+        "total": 3,
+        "taxa_acerto": 1.0
+      }
+    },
+    "falhas": []
+  }
+}

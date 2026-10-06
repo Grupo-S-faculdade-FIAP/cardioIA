@@ -1,5 +1,10 @@
-pandas>=2.0
-scikit-learn>=1.4
+# Bibliotecas que afetam os números (vetorização, modelos, métricas): versões fixas
+# para a CI reproduzir exatamente os resultados de reports/metricas_todos.json.
+scikit-learn==1.7.2
+pandas==2.3.3
+numpy==2.3.5
+
+# Ferramentas (não mudam resultados)
 matplotlib>=3.8
 jupyter>=1.0
 nbconvert>=7.0

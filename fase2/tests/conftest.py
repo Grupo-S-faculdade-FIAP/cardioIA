@@ -18,8 +18,9 @@ def dataset_sintetico():
             "situacao": rotulo,
             "origem": "manual" if n < 6 else "template",
             "particao": "teste" if n < 6 else "treino",
+            "criterio": criterio,
         }
-        for rotulo, sintomas in (("alto risco", ALTO), ("baixo risco", BAIXO))
+        for rotulo, criterio, sintomas in (("alto risco", "A1", ALTO), ("baixo risco", "B2", BAIXO))
         for sintoma in sintomas
         for n in range(30)
     ]
