@@ -21,8 +21,8 @@ AS019,S018,IAM / Síndrome Coronariana Aguda,sintoma associado,F002|F003,,Sínco
 AS020,S019,IAM / Síndrome Coronariana Aguda,sintoma associado,F002,,Palidez.
 AS021,S020,IAM / Síndrome Coronariana Aguda,sintoma associado,F003,,Não específica.
 AS022,S013,Angina / Doença Coronariana,manifestação principal,F004|F005,A003|A004|A006|A010|A019|A020,Esforço/estresse e melhora com repouso são úteis.
-AS023,S001,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,,Pode acompanhar o quadro.
-AS024,S004,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,,Pode acompanhar o quadro.
+AS023,S001,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,Pode acompanhar o quadro.
+AS024,S004,Angina / Doença Coronariana,sintoma associado,F004|F005,A003,Pode acompanhar o quadro.
 AS025,S015,Angina / Doença Coronariana,sintoma associado,F004|F005,,Pode acompanhar o quadro.
 AS026,S021,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Edema não determina síndrome cardiorrenal.
 AS027,S012,Congestão / contexto cardiorrenal,manifestação contextual,F006|F007,,Integrar com função renal e contexto.

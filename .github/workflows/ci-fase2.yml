@@ -1,0 +1,101 @@
+name: CI — Fase 2 NLP Triagem
+
+on:
+  push:
+    branches: [main, fase2-*]
+    paths:
+      - "fase2/**"
+      - ".spec/SDD-fase2-nlp-triagem.md"
+      - ".github/workflows/ci-fase2.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "fase2/**"
+
+jobs:
+  harness:
+    name: Harness de Testes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: fase2/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r fase2/requirements.txt
+
+      - name: Rodar suite de testes
+        run: |
+          cd fase2
+          python -m pytest tests/ -v \
+            --tb=short \
+            --no-header \
+            -p no:cacheprovider \
+            --color=yes
+        env:
+          PYTHONPATH: fase2/src
+
+      - name: Verificar execução do pipeline principal
+        run: |
+          cd fase2
+          python src/main.py
+        env:
+          PYTHONPATH: fase2/src
+
+  notebooks:
+    name: Executar Notebooks
+    runs-on: ubuntu-latest
+    # Roda apenas se frases_risco.csv existir (notebooks de ML dependem do dataset)
+    # Em PRs sem o dataset, este job é marcado como "skipped" via continue-on-error
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: fase2/requirements.txt
+
+      - name: Instalar dependências (com Jupyter)
+        run: pip install -r fase2/requirements.txt
+
+      - name: Executar notebook 01 — Mapa de Conhecimento
+        if: hashFiles('fase2/notebooks/01_mapa_conhecimento.ipynb') != ''
+        run: |
+          jupyter nbconvert --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=120 \
+            fase2/notebooks/01_mapa_conhecimento.ipynb
+        env:
+          PYTHONPATH: fase2/src
+
+      - name: Executar notebook 02 — Classificador
+        if: hashFiles('fase2/notebooks/02_classificador.ipynb') != '' && hashFiles('fase2/data/frases_risco.csv') != ''
+        run: |
+          jupyter nbconvert --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=300 \
+            fase2/notebooks/02_classificador.ipynb
+        env:
+          PYTHONPATH: fase2/src
+
+      - name: Executar notebook 03 — Análise de Vieses
+        if: hashFiles('fase2/notebooks/03_analise_vieses.ipynb') != '' && hashFiles('fase2/data/frases_risco.csv') != ''
+        run: |
+          jupyter nbconvert --to notebook \
+            --execute \
+            --inplace \
+            --ExecutePreprocessor.timeout=300 \
+            fase2/notebooks/03_analise_vieses.ipynb
+        env:
+          PYTHONPATH: fase2/src
