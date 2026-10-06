@@ -1,0 +1,141 @@
+frase,situacao,criterio,particao
+"Estou com uma dor forte no meio do peito há mais de meia hora e ela não passa nem deitado.",alto risco,A1,teste
+"Comecei a sentir um aperto no peito agora há pouco, com suor frio e vontade de vomitar.",alto risco,A1,teste
+"A dor no peito vai para o braço esquerdo e para o queixo desde que acordei.",alto risco,A1,teste
+"Senti uma pressão no peito do nada enquanto assistia TV e fiquei toda suada.",alto risco,A1,teste
+"Desmaiei no banheiro hoje de manhã e só acordei com minha filha me chamando.",alto risco,A2,teste
+"Acordei de madrugada sem conseguir respirar e precisei abrir a janela para puxar o ar.",alto risco,A3,teste
+"De uma hora pra outra fiquei sem ar, mesmo sentada no sofá sem fazer nada.",alto risco,A3,teste
+"Tô com um peso no peito que desce pro estômago e me deixou enjoado.",alto risco,A1,teste
+"Há uns quarenta minutos sinto uma queimação no peito que irradia para as costas.",alto risco,A1,teste
+"Minha angina mudou: agora a dor aparece até quando estou parado e dura mais.",alto risco,A1,teste
+"Estou com uma dor no peito estranha e fiquei tonta, quase caí no chão.",alto risco,A1,teste
+"Do nada me deu suor frio, enjoo e uma fraqueza enorme, sem dor nenhuma.",alto risco,A4,teste
+"Senti um cansaço repentino muito forte com mal-estar e precisei sentar no meio da rua.",alto risco,A4,teste
+"Apaguei por alguns segundos depois de sentir o coração disparar.",alto risco,A2,teste
+"Estou com falta de ar mesmo em repouso desde ontem à noite e está piorando.",alto risco,A3,teste
+"A dor no peito começou durante a discussão e já faz mais de vinte minutos que não alivia.",alto risco,A1,teste
+"Sinto um aperto no peito que sobe para o pescoço e o braço fica formigando.",alto risco,A1,teste
+"dor no peito com suor frio e falta de ar ha uns 30 minutos",alto risco,A1,teste
+"Tive um desmaio na fila do banco e disseram que fiquei pálida.",alto risco,A2,teste
+"Meu pai está com dor no peito, vomitou duas vezes e está muito pálido.",alto risco,A1,teste
+"Essa semana a dor no peito voltou várias vezes, cada vez com menos esforço.",alto risco,A1,teste
+"Acordo à noite sufocado e tenho que sentar na cama para conseguir respirar.",alto risco,A3,teste
+"O aperto no peito não melhora nem com o remédio debaixo da língua.",alto risco,A1,teste
+"Senti de repente uma dor fortíssima no peito e nas costas, como uma facada.",alto risco,A1,teste
+"Comecei a suar frio e a sentir náusea depois do almoço, e o braço esquerdo ficou dormente.",alto risco,A4,teste
+"Fiquei muito tonto e perdi a consciência por um instante enquanto subia a escada.",alto risco,A2,teste
+"Estou com dificuldade para respirar do nada e os lábios ficaram roxos.",alto risco,A3,teste
+"Sinto dor no peito e falta de ar ao mesmo tempo, começou faz uma hora.",alto risco,A1,teste
+"Estou com o peito apertado e a mandíbula doendo desde a hora que acordei.",alto risco,A1,teste
+"Minha mãe de 78 anos ficou confusa, suando frio e com muito enjoo de repente.",alto risco,A4,teste
+"Tenho uma dor leve nas costas quando fico muito tempo sentado no trabalho.",baixo risco,B2,teste
+"Sinto um cansaço normal no fim do dia depois de trabalhar em pé.",baixo risco,B1,teste
+"Há meses sinto uma pressão no peito quando subo ladeira rápido, que passa assim que paro.",baixo risco,B1,teste
+"Não sinto dor no peito nem falta de ar, só uma tosse seca por causa da gripe.",baixo risco,B3,teste
+"De vez em quando sinto o coração acelerar depois do café, mas passa rápido.",baixo risco,B1,teste
+"Estou com azia depois das refeições pesadas há algumas semanas.",baixo risco,B2,teste
+"Meus tornozelos ficam um pouco inchados no fim do dia quando faz muito calor.",baixo risco,B1,teste
+"Tenho dor no joelho quando caminho muito, já faz uns dois anos.",baixo risco,B2,teste
+"Fico um pouco sem fôlego quando corro para pegar o ônibus, como sempre fiquei.",baixo risco,B1,teste
+"Sinto uma pontada no peito quando aperto as costelas, depois que carreguei peso na academia.",baixo risco,B2,teste
+"Ando meio desanimada e com sono nas últimas semanas, mas sem outros sintomas.",baixo risco,B1,teste
+"Tive uma dor de cabeça leve hoje à tarde que melhorou com analgésico.",baixo risco,B2,teste
+"Nao tenho falta de ar, so fico cansado depois de jogar bola no fim de semana.",baixo risco,B3,teste
+"Minha pressão estava um pouco alta no exame de rotina, mas me sinto bem.",baixo risco,B1,teste
+"Às vezes fico tonta quando levanto rápido da cama, dura só uns segundos.",baixo risco,B1,teste
+"Sinto o estômago estufado e arroto muito depois do almoço.",baixo risco,B2,teste
+"Estou com coriza e a garganta inflamada desde anteontem.",baixo risco,B2,teste
+"Uma dor fraca no peito aparece quando tusso muito por causa do resfriado.",baixo risco,B2,teste
+"Faz uns meses que acordo uma vez durante a noite para urinar.",baixo risco,B1,teste
+"Estou mais cansado que o normal desde que comecei a dormir tarde.",baixo risco,B1,teste
+"Sinto um formigamento nas mãos quando digito por muito tempo.",baixo risco,B2,teste
+"Não cheguei a desmaiar, só senti a vista escurecer por um segundo quando levantei rápido.",baixo risco,B3,teste
+"Tenho uma dor nas pernas depois de caminhar bastante no fim de semana.",baixo risco,B2,teste
+"Há anos tenho uma falta de ar leve quando subo três andares de escada, nada mudou.",baixo risco,B1,teste
+"Sinto uma queimação no estômago quando fico muito tempo sem comer.",baixo risco,B2,teste
+"Estou com dor muscular no ombro depois de pintar a casa.",baixo risco,B2,teste
+"Meu peito dói um pouco quando faço flexão na academia, parece ser só o músculo.",baixo risco,B2,teste
+"Tenho tido insônia e me sinto ansiosa à noite, sem dor e sem falta de ar.",baixo risco,B3,teste
+"Engordei uns dois quilos nos últimos meses e me canso um pouco mais ao subir escada.",baixo risco,B1,teste
+"Sinto palpitações rápidas quando fico nervosa antes das provas, mas passam logo.",baixo risco,B1,teste
+"Sinto uma dor apertada no peito que espalha para o braço direito há meia hora.",alto risco,A1,treino
+"Estou com o peito doendo muito e suando frio, começou enquanto eu dirigia.",alto risco,A1,treino
+"Uma dor em peso no peito apareceu de repente e veio junto com enjoo.",alto risco,A1,treino
+"Faz quase uma hora que estou com desconforto no peito que não alivia de jeito nenhum.",alto risco,A1,treino
+"Senti o peito apertar e a vista escurecer, achei que ia cair.",alto risco,A1,treino
+"A dor no peito agora vem até quando estou deitada descansando.",alto risco,A1,treino
+"Estou com uma dor no peito que chega até as costas e me deixou sem ar.",alto risco,A1,treino
+"Meu marido sentiu um aperto no peito no trabalho e está todo suado e pálido.",alto risco,A1,treino
+"Tenho uma pressão no peito que começou faz uns vinte e cinco minutos e não melhora.",alto risco,A1,treino
+"A dor no peito sobe para o queixo toda vez que tento me mexer e já dura mais de meia hora.",alto risco,A1,treino
+"Estou sentindo o peito pesado, com náusea e muita fraqueza.",alto risco,A1,treino
+"Meu avô acordou de madrugada com dor no peito e está vomitando.",alto risco,A1,treino
+"A angina que eu tinha só no esforço agora aparece quando estou sentado vendo televisão.",alto risco,A1,treino
+"Comecei a sentir uma queimação forte no peito, com o braço pesado e suor frio.",alto risco,A1,treino
+"Sinto um aperto no peito acompanhado de falta de ar desde que cheguei em casa.",alto risco,A1,treino
+"Estou com dor no peito e meu coração está batendo muito rápido, fiquei tonto.",alto risco,A1,treino
+"Senti uma pontada forte no peito que foi para o ombro e não passou mais.",alto risco,A1,treino
+"Desde ontem a dor no peito aparece com qualquer esforço pequeno, até para tomar banho.",alto risco,A1,treino
+"Caí desmaiada na cozinha e só lembro de acordar no chão.",alto risco,A2,treino
+"Perdi os sentidos enquanto estava em pé na missa.",alto risco,A2,treino
+"Ele desmaiou do nada no almoço e ficou alguns segundos sem responder.",alto risco,A2,treino
+"Tive uma perda de consciência rápida depois de sentir o coração acelerado.",alto risco,A2,treino
+"Desmaiei duas vezes nesta semana sem nenhum motivo aparente.",alto risco,A2,treino
+"Fiquei desacordado por uns instantes quando me levantei da cadeira.",alto risco,A2,treino
+"Apaguei de repente quando estava subindo a rua.",alto risco,A2,treino
+"Estou ofegante mesmo parado e não consigo falar uma frase inteira.",alto risco,A3,treino
+"A falta de ar me acordou três vezes esta noite e só melhora sentado.",alto risco,A3,treino
+"Fiquei com uma dificuldade enorme para respirar de repente, sem ter feito esforço.",alto risco,A3,treino
+"Não consigo respirar direito nem deitada nem sentada desde a madrugada.",alto risco,A3,treino
+"Estou sem ar até para falar, mesmo descansando na cama.",alto risco,A3,treino
+"Acordo no meio da noite com sensação de afogamento e preciso ficar sentada para respirar.",alto risco,A3,treino
+"A respiração ficou curta de uma hora para outra enquanto eu lia um livro.",alto risco,A3,treino
+"Comecei a suar muito frio e senti um enjoo forte, sem dor no peito.",alto risco,A4,treino
+"Estou com uma fraqueza súbita, suor frio e sensação de que vou passar mal.",alto risco,A4,treino
+"Senti um mal-estar estranho de repente, com náusea e o corpo todo molhado de suor.",alto risco,A4,treino
+"Minha avó está muito cansada de repente, suando e com enjoo, mas não reclama de dor.",alto risco,A4,treino
+"Do nada fiquei exausta, com suor frio e um enjoo que não passa.",alto risco,A4,treino
+"Tive uma dor no estômago com suor frio e vômito, e estou muito fraco.",alto risco,A4,treino
+"Uma canseira súbita tomou conta de mim, com tontura e suor gelado.",alto risco,A4,treino
+"Senti a mandíbula doer e começou um suor frio com náusea logo depois.",alto risco,A4,treino
+"Tenho uma dorzinha nas costas depois de carregar as compras.",baixo risco,B2,treino
+"Fico cansada no fim do expediente, mas uma noite de sono resolve.",baixo risco,B1,treino
+"Sinto uma pressão no peito quando faço caminhada forte há uns seis meses e melhora com repouso.",baixo risco,B1,treino
+"Não sinto falta de ar, apenas um nariz entupido por causa da rinite.",baixo risco,B3,treino
+"Meu coração dispara quando levo um susto, mas logo volta ao normal.",baixo risco,B1,treino
+"Tenho refluxo e sinto um ardor na garganta depois do jantar.",baixo risco,B2,treino
+"Meus pés incham um pouco quando passo o dia inteiro em pé no calor.",baixo risco,B1,treino
+"Dói o tornozelo desde que torci jogando vôlei semana passada.",baixo risco,B2,treino
+"Fico ofegante depois de jogar futebol com meus filhos, mas recupero rápido.",baixo risco,B1,treino
+"Sinto dor no peito só quando aperto um ponto perto do esterno, desde que caí de bicicleta.",baixo risco,B2,treino
+"Estou meio sem energia nesta semana por causa das provas da faculdade.",baixo risco,B1,treino
+"Tenho enxaqueca de vez em quando, principalmente quando durmo pouco.",baixo risco,B2,treino
+"Nunca desmaiei, mas às vezes sinto um leve cansaço à tarde.",baixo risco,B3,treino
+"Meu exame de colesterol veio um pouco alterado, mas não sinto nada.",baixo risco,B3,treino
+"Quando levanto muito rápido do sofá vejo estrelinhas por um segundo.",baixo risco,B1,treino
+"Ando com gases e a barriga estufada depois de comer feijão.",baixo risco,B2,treino
+"Estou espirrando muito e com o nariz escorrendo desde ontem.",baixo risco,B2,treino
+"Sinto um incômodo no peito quando tusso por causa da bronquite que já estou tratando.",baixo risco,B2,treino
+"Levanto uma vez por noite para ir ao banheiro há bastante tempo.",baixo risco,B1,treino
+"Fico mais cansado nos dias em que não tomo café da manhã.",baixo risco,B1,treino
+"Minhas mãos ficam dormentes quando durmo em cima do braço.",baixo risco,B2,treino
+"Não perdi a consciência, só fiquei um pouco zonzo com o calor da praia.",baixo risco,B3,treino
+"Sinto dor nas panturrilhas depois da corrida de domingo.",baixo risco,B2,treino
+"Faz anos que me canso um pouco ao subir ladeira, nada diferente do habitual.",baixo risco,B1,treino
+"Tenho uma queimação no estômago quando como comida apimentada.",baixo risco,B2,treino
+"Estou com o ombro dolorido depois de dormir de mau jeito.",baixo risco,B2,treino
+"O peito fica dolorido depois do treino de supino, só na musculatura.",baixo risco,B2,treino
+"Tenho dificuldade para dormir por ansiedade, mas não sinto dor nem falta de ar.",baixo risco,B3,treino
+"Ganhei um pouco de peso nas férias e me sinto mais pesada para correr.",baixo risco,B1,treino
+"Às vezes sinto o coração bater mais forte antes de falar em público.",baixo risco,B1,treino
+"Estou com dor de garganta e um pouco de febre desde hoje cedo.",baixo risco,B2,treino
+"Não tenho dor no peito, só uma coceira na pele que apareceu ontem.",baixo risco,B3,treino
+"Sinto as pernas cansadas no fim do plantão, mas melhora com elas para cima.",baixo risco,B1,treino
+"Tenho uma tosse leve com catarro há três dias por causa do resfriado.",baixo risco,B2,treino
+"Sem falta de ar e sem dor no peito, só um pouco de dor nas costas.",baixo risco,B3,treino
+"Fico um pouco sem ar quando subo escadas carregando peso, como sempre.",baixo risco,B1,treino
+"Minha pressão subiu um pouco no dia da consulta, mas em casa está normal.",baixo risco,B1,treino
+"De vez em quando sinto uma pontadinha rápida no peito que some em segundos.",baixo risco,B1,treino
+"Não desmaiei e nem fiquei tonta, só senti calor no ônibus lotado.",baixo risco,B3,treino
+"Estou com dor de dente desde ontem à noite.",baixo risco,B2,treino

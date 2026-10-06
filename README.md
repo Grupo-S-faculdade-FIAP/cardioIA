@@ -1,6 +1,30 @@
-# CardioIA — Diagnóstico e Alerta Precoce da Síndrome Cardiorrenal Metabólica (Fase 1)
+# CardioIA — Diagnóstico e Alerta Precoce da Síndrome Cardiorrenal Metabólica
 
-Este repositório contém a entrega da **Fase 1: Batimentos de Dados** do projeto **CardioIA**, desenvolvido no curso de Inteligência Artificial da **FIAP**. O objetivo desta etapa é estruturar, catalogar e aplicar princípios de Governança de Dados em ativos numéricos, textuais e visuais voltados ao ecossistema da cardiologia moderna.
+> ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
+> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
+
+Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no curso de Inteligência Artificial da **FIAP**.
+
+## Entregas por fase
+
+| Fase | Tema | Onde está | Destaques |
+|---|---|---|---|
+| **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
+| **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](INSIRA_AQUI_O_LINK_DO_VIDEO) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
+
+## Integrantes
+
+| Nome completo | RM |
+|---|---|
+| [NOME COMPLETO] | [RM] |
+| [NOME COMPLETO] | [RM] |
+| [NOME COMPLETO] | [RM] |
+
+---
+
+# Fase 1 — Batimentos de Dados
+
+O objetivo desta etapa é estruturar, catalogar e aplicar princípios de Governança de Dados em ativos numéricos, textuais e visuais voltados ao ecossistema da cardiologia moderna.
 
 ---
 
@@ -46,7 +70,7 @@ O projeto resolve a dificuldade enfrentada por médicos em cruzar, durante consu
   1. [`diretriz_insuficiencia_cardiaca/`](assets/documentos_cientificos/diretriz_insuficiencia_cardiaca/): recorte da *Diretriz Brasileira de Insuficiência Cardíaca Crônica e Aguda* (SBC/DEIC, Arq Bras Cardiol 2018;111(3):436-539, [SciELO](https://www.scielo.br/j/abc/a/XkVKFb4838qXrXSYbmCYM3K/), DOI [10.5935/abc.20180190](https://doi.org/10.5935/abc.20180190)) — conceitos e estágios, diagnóstico e tratamento farmacológico/não farmacológico da IC crônica e aguda. Licença **CC BY 4.0** (declarada na própria página do artigo).
   2. [`consenso_sindrome_cardiorrenal/`](assets/documentos_cientificos/consenso_sindrome_cardiorrenal/): revisão sistemática *"Síndrome Cardiorrenal Aguda: Qual Critério Diagnóstico Utilizar e sua Importância para o Prognóstico?"* (Leite et al., Arq Bras Cardiol, 2020, DOI [10.36660/abc.20190207](https://doi.org/10.36660/abc.20190207)) — classificação, critérios diagnósticos, biomarcadores e prognóstico da síndrome cardiorrenal. Licença **CC BY-NC** (uso não comercial, com atribuição — compatível com o uso educacional deste projeto).
   3. [`ckm_current_urgent_concept/`](assets/documentos_cientificos/ckm_current_urgent_concept/): *"Cardiovascular-Kidney-Metabolic Syndrome: A Current and Urgent Concept"* (Jornal Brasileiro de Nefrologia/SciELO, 2025, DOI [10.1590/2175-8239-JBN-2024-0277en](https://doi.org/10.1590/2175-8239-JBN-2024-0277en)) — artigo brasileiro sobre a diretriz AHA/ACC/ADA/ASN de CKM (a mesma base clínica usada na Parte 1 pra derivar `CKM_Stage`, ver `.spec/especificacao-estagios-ckm.md`). Licença **CC BY 4.0**. Publicado em inglês, com resumo também em português (incluído no arquivo).
-* **PDF destacado:** gerado por [`src/destacar_documentos_cientificos.py`](src/destacar_documentos_cientificos.py) — baixa o `original.pdf` de cada artigo e marca em amarelo os trechos que foram efetivamente usados no `recorte.txt` (~85% de cobertura de destaque; o `.txt` continua sendo a fonte de verdade do que foi usado, o PDF é só uma conferência visual).
+* **PDF destacado:** o `destacado.pdf` de cada artigo marca em amarelo os trechos efetivamente usados no `recorte.txt` (~85% de cobertura de destaque). O script que gerou os destaques foi removido depois da entrega; os PDFs continuam versionados. O `.txt` é a fonte de verdade do que foi usado, e o PDF serve só para conferência visual.
 * **Aplicações de NLP:** Sumarização automática de condutas, extração de sintomas e sistemas RAG (*Retrieval-Augmented Generation*) para auxílio ao médico.
 * **Nota:** os 3 arquivos são recortes selecionados dos documentos originais (não o texto integral), com cabeçalho de citação completo (fonte, DOI, licença, data de extração) no topo de cada `.txt`.
 
@@ -103,8 +127,8 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 ├── src/
 │   ├── build_pns_ckm_dataset.py                # pipeline: baixa, seleciona e valida o dataset numérico
 │   ├── derive_ckm_stage.py                     # deriva classificadores clínicos e CKM_Stage (Camadas 2-4)
-│   ├── calcular_prevent.R                      # Estágio 3 via escore PREVENT (pacote CVrisk, só em R)
-│   └── destacar_documentos_cientificos.py      # baixa e destaca (highlight) os PDFs originais da Parte 2
+│   └── calcular_prevent.R                      # Estágio 3 via escore PREVENT (pacote CVrisk, só em R)
+├── fase2/                                      # FASE 2 — NLP, classificador de risco e vieses (ver fase2/README.md)
 ├── tests/
 │   ├── validar_extracao_pns.py                 # compara bruto (Excel) x tratado (CSV) linha a linha
 │   └── validar_ckm_stage.py                    # prova que CKM_Stage é consequência lógica fiel dos classificadores
@@ -113,6 +137,7 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 ├── docs/
 │   └── eda-pns-2013-achados.md                 # achados da EDA: valores ausentes, outliers, casos investigados
 ├── .spec/
+│   ├── SDD-fase2-nlp-triagem.md                # especificação da Fase 2 (contratos, metas, limitações)
 │   ├── SDD-pipeline-pns-ckm.md                 # especificação técnica do pipeline (Parte 1)
 │   ├── especificacao-estagios-ckm.md           # mapa indicador→variável PNS→estágio CKM
 │   └── decisao-fontes-de-dados.md              # por que 3 fontes separadas (e por que PNS, não NHANES)
@@ -125,6 +150,9 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 │       ├── Normal/ · Infarto_Miocardio/ · Historico_Infarto_Miocardio/ · Batimento_Anormal/
 │       ├── _manifest.json                      # arquivo, classe, tamanho e hash SHA-256 de cada imagem
 │       └── LINHAGEM.md                         # fonte, licença, método de amostragem, reprodutibilidade
+├── .github/workflows/ci-fase2.yml              # CI da Fase 2: harness + notebooks
+├── .claude/                                    # hook e skills de engenharia de ML (Claude Code)
+├── CLAUDE.md                                   # regras do projeto (dados sintéticos, seed, aviso clínico...)
 ├── RELATORIO-FASE1.md                          # relatório técnico consolidando o projeto inteiro
 ├── requirements.txt
 ├── .gitignore

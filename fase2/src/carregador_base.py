@@ -19,12 +19,13 @@ def carregar_csv(nome_arquivo):
 
 
 def carregar_base_conhecimento():
-    """Carrega os quatro arquivos necessários para a análise textual."""
+    """Carrega os cinco arquivos da base usados na análise textual."""
     return {
         "conceitos": carregar_csv("conceitos.csv"),
         "expressoes": carregar_csv("expressoes.csv"),
         "atributos": carregar_csv("atributos.csv"),
         "associacoes": carregar_csv("associacoes.csv"),
+        "fontes": carregar_csv("fontes.csv"),
     }
 
 

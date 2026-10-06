@@ -1,0 +1,11 @@
+{
+  "_descricao": "Conjunto de teste congelado do classificador de risco (SDD Fase 2, §4). Alterar exige aprovação da equipe, revisão clínica e registro em fase2/data/frases_risco_LINHAGEM.md.",
+  "arquivo": "fase2/data/frases_risco.csv",
+  "fonte": "fase2/data/frases_manuais.csv (particao = teste)",
+  "linhas_de_teste": 60,
+  "sha256": "e8288963738a08216d0b5d4036116ffd8cd9de9936f82dd750c6b6c51596105f",
+  "congelado_em": "2026-10-06",
+  "congelado_antes_da_primeira_avaliacao": true,
+  "autoria": "redigido por Claude (assistente de IA) a pedido da equipe; revisão humana pendente",
+  "revisao_clinica": "pendente — Dra. Fernanda Fassina (CRM-SP 169944)"
+}

@@ -1,0 +1,78 @@
+name: CI — Fase 2 NLP Triagem
+
+on:
+  push:
+    branches: [main, fase2-*]
+    paths:
+      - "fase2/**"
+      - ".spec/SDD-fase2-nlp-triagem.md"
+      - ".github/workflows/ci-fase2.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "fase2/**"
+      - ".spec/SDD-fase2-nlp-triagem.md"
+
+jobs:
+  harness:
+    name: Harness de testes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fase2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: fase2/requirements.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      # pytest.ini já coloca src/ no caminho; inclui o gate de metas do
+      # classificador (test_metas_dataset_real) quando frases_risco.csv existe.
+      - name: Rodar o harness
+        run: python -m pytest -v --tb=short --no-header -p no:cacheprovider --color=yes
+
+      - name: Rodar o extrator nos 10 relatos
+        run: python src/main.py
+
+      - name: Conferir se o mapa derivado está atualizado
+        run: |
+          python src/gerar_mapa_conhecimento.py
+          git diff --exit-code -- knowledge_base/mapa_conhecimento.csv
+
+  notebooks:
+    name: Executar notebooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: fase2/requirements.txt
+
+      - name: Instalar dependências (com Jupyter)
+        run: pip install -r fase2/requirements.txt
+
+      # Cada notebook localiza fase2/src sozinho; só roda se o arquivo existir.
+      - name: Notebook 01 — extração de sintomas
+        if: hashFiles('fase2/notebooks/01_extracao_sintomas.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=120 fase2/notebooks/01_extracao_sintomas.ipynb
+
+      - name: Notebook 02 — classificador de risco
+        if: hashFiles('fase2/notebooks/02_classificador_risco.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=300 fase2/notebooks/02_classificador_risco.ipynb
+
+      - name: Notebook 03 — análise de vieses
+        if: hashFiles('fase2/notebooks/03_analise_vieses.ipynb') != ''
+        run: jupyter nbconvert --to notebook --execute --output-dir /tmp --ExecutePreprocessor.timeout=300 fase2/notebooks/03_analise_vieses.ipynb

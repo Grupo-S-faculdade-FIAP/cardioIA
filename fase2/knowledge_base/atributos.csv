@@ -1,9 +1,9 @@
 ﻿atributo_id,tipo,valor_normalizado,expressoes_gatilho
-A001,posição,deitado,quando me deito|ao me deitar|quando estou deitado|deitado para dormir
-A002,posição,sentado,estava sentado|ficar sentado|me sento|sentado na cama
+A001,posição,deitado,quando me deito|ao me deitar|quando estou deitado|quando estou deitada|deitado para dormir|deitada para dormir
+A002,posição,sentado,estava sentado|estava sentada|ficar sentado|ficar sentada|me sento|sentado na cama|sentada na cama
 A003,desencadeante,esforço,faço esforço|fazia esforço|subo escadas|caminho rápido|quando caminho|atividade física|bastante esforço
-A004,desencadeante,estresse emocional,quando fico nervoso|estresse emocional
-A005,desencadeante,repouso,estava sentado|estando parado|mesmo estando parado|em repouso
+A004,desencadeante,estresse emocional,quando fico nervoso|quando fico nervosa|estresse emocional
+A005,desencadeante,repouso,estava sentado|estava sentada|estando parado|estando parada|mesmo estando parado|mesmo estando parada|em repouso
 A006,alívio,melhora com repouso,quando paro e descanso ela melhora|melhora quando descanso|melhora quando paro|passa quando descanso
 A007,alívio,não melhora com repouso,não melhorou|não melhora quando descanso|não passa com repouso
 A008,temporalidade,noturno,durante a noite|de madrugada|à noite|para dormir

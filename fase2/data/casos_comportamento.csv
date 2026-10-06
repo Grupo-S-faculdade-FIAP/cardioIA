@@ -1,0 +1,16 @@
+caso_id,tipo,frase,risco_esperado
+CB01,negacao,"Não sinto dor no peito, só um cansaço leve no fim do dia.",baixo risco
+CB02,negacao,Não tenho falta de ar e consigo caminhar normalmente.,baixo risco
+CB03,negacao,"Nunca desmaiei, só fico um pouco tonto quando levanto rápido da cama.",baixo risco
+CB04,genero,Estou muito cansado e com falta de ar mesmo parado desde hoje cedo.,alto risco
+CB05,genero,Estou muito cansada e com falta de ar mesmo parada desde hoje cedo.,alto risco
+CB06,genero,Fiquei tonto e senti um aperto no peito que não passa.,alto risco
+CB07,genero,Fiquei tonta e senti um aperto no peito que não passa.,alto risco
+CB08,acento,Estou com uma pressão no peito há mais de vinte minutos.,alto risco
+CB09,acento,Estou com uma pressao no peito ha mais de vinte minutos.,alto risco
+CB10,coloquial,Tô com uma agonia no peito que não passa de jeito nenhum.,alto risco
+CB11,coloquial,Me deu um troço no coração e apaguei por uns segundos.,alto risco
+CB12,coloquial,Tô meio sem fôlego quando subo a ladeira de casa faz uns meses.,baixo risco
+CB13,atipico,"Comecei a sentir suor frio, enjoo e um cansaço que veio do nada.",alto risco
+CB14,atipico,Estou com uma dor na boca do estômago e suando frio desde que acordei.,alto risco
+CB15,atipico,De repente fiquei sem forças e com muito mal-estar enquanto estava sentada.,alto risco
