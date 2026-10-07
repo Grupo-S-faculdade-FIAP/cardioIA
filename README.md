@@ -10,7 +10,7 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 | Fase | Tema | Onde está | Destaques |
 |---|---|---|---|
 | **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
-| **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](INSIRA_AQUI_O_LINK_DO_VIDEO) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
+| **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
 
 ## Integrantes
 

@@ -3,7 +3,7 @@
 > ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
 > Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
-🎥 **Vídeo de demonstração (YouTube, não listado):** [INSIRA_AQUI_O_LINK_DO_VIDEO]
+🎥 **Vídeo de demonstração (YouTube, não listado):** [https://youtu.be/dAxV0-LsrXk](https://youtu.be/dAxV0-LsrXk)
 
 ## Integrantes
 
