@@ -16,9 +16,11 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 
 | Nome completo | RM |
 |---|---|
-| [NOME COMPLETO] | [RM] |
-| [NOME COMPLETO] | [RM] |
-| [NOME COMPLETO] | [RM] |
+| Caroline de Castro Corrêa | RM567255 |
+| Enzo França Sader | RM566928 |
+| Lucas Hideki Oliveira Koyama | RM566925 |
+| Rodrigo Dias Figueiroa | RM567800 |
+| Tiago Lindgren Curi | RM567016 |
 
 ---
 

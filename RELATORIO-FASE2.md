@@ -6,6 +6,7 @@
 | **Curso** | Inteligência Artificial, FIAP |
 | **Supervisão clínica** | Dra. Fernanda Fassina (Cardiologista e Clínica Geral, CRM-SP 169944) |
 | **Escopo deste relatório** | Estado do projeto ao final da Fase 2 — NLP clínico, base de conhecimento, classificador de risco e análise de vieses |
+| **Integrantes** | Caroline de Castro Corrêa (RM567255) · Enzo França Sader (RM566928) · Lucas Hideki Oliveira Koyama (RM566925) · Rodrigo Dias Figueiroa (RM567800) · Tiago Lindgren Curi (RM567016) |
 | **Última revisão** | 2026-10-07 |
 
 ---
