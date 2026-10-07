@@ -3,15 +3,17 @@
 > ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
 > Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
-🎥 **Vídeo de demonstração (YouTube, não listado):** [INSIRA_AQUI_O_LINK_DO_VIDEO]
+🎥 **Vídeo de demonstração (YouTube, não listado):** [https://youtu.be/dAxV0-LsrXk](https://youtu.be/dAxV0-LsrXk)
 
 ## Integrantes
 
 | Nome completo | RM |
 |---|---|
-| [NOME COMPLETO] | [RM] |
-| [NOME COMPLETO] | [RM] |
-| [NOME COMPLETO] | [RM] |
+| Caroline de Castro Corrêa | RM567255 |
+| Enzo França Sader | RM566928 |
+| Lucas Hideki Oliveira Koyama | RM566925 |
+| Rodrigo Dias Figueiroa | RM567800 |
+| Tiago Lindgren Curi | RM567016 |
 
 ---
 
