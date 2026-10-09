@@ -1,10 +1,11 @@
-
 #include <Arduino.h>
 #include <DHTesp.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
 // =====================================================
 // CardioIA - Fase 3
-// Monitoramento IoT com resiliencia offline
+// Monitoramento IoT com resiliencia offline e MQTT
 //
 // Sensores:
 // - DHT22: temperatura e umidade
@@ -47,7 +48,57 @@ unsigned int totalPulsos = 0;
 // false: desconectado
 // true: conectado
 // Inicialmente offline para demonstrar a resiliencia.
-bool wifiConectado = false;
+// f/o alternam a transmissao de forma controlada para testes.
+// Em modo offline a coleta local continua funcionando.
+bool envioHabilitado = false;
+
+const char* WIFI_SSID = "Wokwi-GUEST";
+const char* WIFI_SENHA = "";
+const char* BROKER_MQTT = "broker.hivemq.com";
+const uint16_t PORTA_MQTT = 1883;
+const char* TOPICO_MQTT = "cardioia/fiap/fase3/enzf-477362937220720641/sinais";
+const char* ID_CLIENTE = "cardioia-esp32-enzf-477362937220720641";
+
+WiFiClient clienteRede;
+PubSubClient mqtt(clienteRede);
+unsigned long ultimaTentativaWiFi = 0;
+unsigned long ultimaTentativaMQTT = 0;
+const unsigned long INTERVALO_RECONEXAO = 5000;
+
+bool conexaoPronta() {
+  return envioHabilitado && WiFi.status() == WL_CONNECTED && mqtt.connected();
+}
+
+// As tentativas sao espacadas, sem bloquear a leitura dos sensores.
+void manterConexao() {
+  if (!envioHabilitado) return;
+
+  unsigned long agora = millis();
+  if (WiFi.status() != WL_CONNECTED) {
+    if (ultimaTentativaWiFi == 0 || agora - ultimaTentativaWiFi >= INTERVALO_RECONEXAO) {
+      ultimaTentativaWiFi = agora;
+      Serial.println("[WIFI] Tentando conectar...");
+      WiFi.begin(WIFI_SSID, WIFI_SENHA, 6);
+    }
+    return;
+  }
+
+  if (!mqtt.connected()) {
+    if (ultimaTentativaMQTT == 0 || agora - ultimaTentativaMQTT >= INTERVALO_RECONEXAO) {
+      ultimaTentativaMQTT = agora;
+      Serial.println("[MQTT] Tentando conectar ao broker...");
+      if (mqtt.connect(ID_CLIENTE)) {
+        Serial.println("[MQTT] Conectado ao broker!");
+      } else {
+        Serial.print("[MQTT] Falha, codigo: ");
+        Serial.println(mqtt.state());
+      }
+    }
+    return;
+  }
+
+  mqtt.loop();
+}
 
 // ---------------- ARMAZENAMENTO LOCAL ----------------
 
@@ -60,6 +111,10 @@ struct Leitura {
   float bpm;
   bool bpmValido;
 };
+
+// Declarações antecipadas das funções
+void armazenarLeitura(Leitura novaLeitura);
+bool transmitirLeitura(const Leitura &leitura);
 
 // Fila circular com capacidade fixa.
 Leitura fila[CAPACIDADE_FILA];
@@ -107,48 +162,35 @@ void armazenarLeitura(Leitura novaLeitura) {
 
 
 // =====================================================
-// TRANSMISSAO SIMULADA
+// TRANSMISSAO MQTT (QoS 0)
 // =====================================================
 
-// Nesta etapa usamos o Monitor Serial como uma
-// representacao da transmissao para a nuvem.
-//
-// Na Parte 2, substituiremos esta demonstracao
-// pela publicacao real usando MQTT.
-
 bool transmitirLeitura(const Leitura &leitura) {
+  if (!conexaoPronta()) return false;
 
-  if (!wifiConectado) {
+  char payload[320];
+  int tamanho = snprintf(
+    payload, sizeof(payload),
+    "{\"dispositivo\":\"cardioia-esp32-01\",\"id\":%lu,"
+    "\"timestamp_ms\":%lu,\"temperatura\":%.1f,\"umidade\":%.1f,"
+    "\"bpm\":%.1f,\"bpm_valido\":%s}",
+    leitura.id, leitura.timestamp, leitura.temperatura, leitura.umidade,
+    leitura.bpm, leitura.bpmValido ? "true" : "false"
+  );
+
+  if (tamanho < 0 || tamanho >= (int)sizeof(payload)) {
+    Serial.println("[MQTT] Erro: payload muito grande.");
     return false;
   }
 
-  Serial.print("[NUVEM] ");
+  // publish() confirma aceite pelo cliente local, NAO entrega garantida.
+  if (!mqtt.publish(TOPICO_MQTT, payload)) {
+    Serial.println("[MQTT] Falha ao publicar; leitura mantida na fila.");
+    return false;
+  }
 
-  // JSON: formato estruturado para integrar futuramente
-  // com MQTT e Node-RED.
-  Serial.print("{\"id\":");
-  Serial.print(leitura.id);
-
-  Serial.print(",\"timestamp_ms\":");
-  Serial.print(leitura.timestamp);
-
-  Serial.print(",\"temperatura\":");
-  Serial.print(leitura.temperatura, 1);
-
-  Serial.print(",\"umidade\":");
-  Serial.print(leitura.umidade, 1);
-
-  Serial.print(",\"bpm\":");
-  Serial.print(leitura.bpm, 1);
-
-  Serial.print(",\"bpm_valido\":");
-  Serial.print(leitura.bpmValido ? "true" : "false");
-
-  Serial.println("}");
-
-  // Na simulacao, consideramos a impressao como sucesso.
-  // No MQTT real, precisaremos verificar a entrega
-  // de acordo com o protocolo e nivel de QoS escolhido.
+  Serial.print("[MQTT] Publicacao aceita: #");
+  Serial.println(leitura.id);
   return true;
 }
 
@@ -159,7 +201,7 @@ bool transmitirLeitura(const Leitura &leitura) {
 
 void sincronizarLeituras() {
 
-  if (!wifiConectado || quantidadeFila == 0) {
+  if (!conexaoPronta() || quantidadeFila == 0) {
     return;
   }
 
@@ -167,7 +209,7 @@ void sincronizarLeituras() {
   // evitando monopolizar o processamento por muito tempo.
   int enviadasNestaRodada = 0;
 
-  while (wifiConectado &&
+  while (conexaoPronta() &&
          quantidadeFila > 0 &&
          enviadasNestaRodada < 10) {
 
@@ -177,14 +219,14 @@ void sincronizarLeituras() {
       break;
     }
 
-    // Remove apenas apos a transmissao simulada.
+    // Remove apos aceite local da publicacao MQTT (QoS 0).
     inicioFila = (inicioFila + 1) % CAPACIDADE_FILA;
     quantidadeFila--;
     enviadasNestaRodada++;
   }
 
   if (quantidadeFila == 0 && enviadasNestaRodada > 0) {
-    Serial.println("[SYNC] Todas as leituras pendentes foram enviadas.");
+    Serial.println("[SYNC] Fila de publicacoes pendentes esvaziada.");
   }
 }
 
@@ -205,13 +247,16 @@ void verificarComandos() {
     char comando = Serial.read();
 
     if (comando == 'F' || comando == 'f') {
-      wifiConectado = false;
-      Serial.println("[WIFI] Conexao perdida! Modo offline.");
+      envioHabilitado = false;
+      mqtt.disconnect();
+      Serial.println("[OFFLINE] Transmissao MQTT desabilitada; coleta continua.");
     }
 
     else if (comando == 'O' || comando == 'o') {
-      wifiConectado = true;
-      Serial.println("[WIFI] Conexao restaurada!");
+      envioHabilitado = true;
+      ultimaTentativaWiFi = 0;
+      ultimaTentativaMQTT = 0;
+      Serial.println("[ONLINE] Transmissao MQTT habilitada.");
       Serial.println("[SYNC] Iniciando envio dos dados pendentes...");
     }
 
@@ -219,7 +264,7 @@ void verificarComandos() {
       Serial.println("------- STATUS CARDIOIA -------");
 
       Serial.print("Conectividade: ");
-      Serial.println(wifiConectado ? "ONLINE" : "OFFLINE");
+      Serial.println(conexaoPronta() ? "ONLINE (MQTT)" : "OFFLINE (envio indisponivel)");
 
       Serial.print("Leituras pendentes: ");
       Serial.println(quantidadeFila);
@@ -334,7 +379,7 @@ void coletarSinais(unsigned long agora) {
   }
 
   Serial.print("Conexao: ");
-  Serial.println(wifiConectado ? "ONLINE" : "OFFLINE");
+  Serial.println(conexaoPronta() ? "ONLINE (MQTT)" : "OFFLINE (envio indisponivel)");
 
   // Toda leitura entra primeiro na fila.
   // Se estiver online, sera sincronizada em seguida.
@@ -352,9 +397,11 @@ void setup() {
 
   sensorDHT.setup(PINO_DHT, DHTesp::DHT22);
   pinMode(PINO_BOTAO, INPUT_PULLUP);
+  mqtt.setServer(BROKER_MQTT, PORTA_MQTT);
+  mqtt.setBufferSize(512);
 
   Serial.println("=================================");
-  Serial.println("CardioIA - Fase 3: Edge Computing");
+  Serial.println("CardioIA - Fase 3: Edge + MQTT");
   Serial.println("=================================");
   Serial.println("DHT22 e simulador BPM iniciados.");
   Serial.println("Modo inicial: OFFLINE");
@@ -379,6 +426,9 @@ void loop() {
 
   // Coleta temperatura, umidade e BPM.
   coletarSinais(agora);
+
+  // Gerencia Wi-Fi/MQTT sem bloquear o fluxo de coleta.
+  manterConexao();
 
   // Se houver conexao, envia as leituras pendentes.
   sincronizarLeituras();
