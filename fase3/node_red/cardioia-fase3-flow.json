@@ -1,0 +1,398 @@
+[
+    {
+        "id": "0862a29bc8751350",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "883b2313c2d8ae37",
+        "type": "mqtt in",
+        "z": "0862a29bc8751350",
+        "name": "CardioIA - Sinais Vitais",
+        "topic": "cardioia/fiap/fase3/enzf-477362937220720641/sinais",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "4dde9424a894e5c6",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 260,
+        "y": 240,
+        "wires": [
+            [
+                "d77e8678c98e8709",
+                "7eb254c076ad8038",
+                "8dac777d771d92c5",
+                "72a67da70dba0696"
+            ]
+        ]
+    },
+    {
+        "id": "d77e8678c98e8709",
+        "type": "debug",
+        "z": "0862a29bc8751350",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "7eb254c076ad8038",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Processar BPM",
+        "func": "\nconst dados = msg.payload;\n\n// Verifica se o payload e um objeto JSON.\nif (!dados || typeof dados !== \"object\") {\n    return null;\n}\n\n// Ignora leituras sem BPM valido.\nif (dados.bpm_valido !== true) {\n    return null;\n}\n\n// Verifica se o BPM e numerico.\nif (typeof dados.bpm !== \"number\") {\n    return null;\n}\n\n// Prepara o valor para o grafico.\nmsg.payload = dados.bpm;\nmsg.topic = \"BPM simulado\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 320,
+        "wires": [
+            [
+                "f04db1d6893ef5bf"
+            ]
+        ]
+    },
+    {
+        "id": "f04db1d6893ef5bf",
+        "type": "ui-chart",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "name": "CardioIA - Gráfico BPM",
+        "label": "Frequência cardíaca (BPM)",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "Horário da leitura",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "BPM",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "220",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 790,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8dac777d771d92c5",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Processar Temperatura",
+        "func": "const dados = msg.payload;\n\nif (!dados || typeof dados.temperatura !== \"number\") {\n    return null;\n}\n\nmsg.payload = dados.temperatura;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 420,
+        "wires": [
+            [
+                "ee99a572b865e8a1",
+                "466def5588bc6977"
+            ]
+        ]
+    },
+    {
+        "id": "ee99a572b865e8a1",
+        "type": "ui-gauge",
+        "z": "0862a29bc8751350",
+        "name": "CardioIA - Temperatura",
+        "group": "2b960898fd00a362",
+        "order": 0,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Temperatura ambiental",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°C",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "7",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "50",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 810,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "466def5588bc6977",
+        "type": "debug",
+        "z": "0862a29bc8751350",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "72a67da70dba0696",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Verificar Alertas",
+        "func": "\nconst dados = msg.payload;\n\nif (!dados || typeof dados !== \"object\") {\n    return null;\n}\n\nconst alertas = [];\n\n// So analisa BPM quando a estimativa e valida.\nif (dados.bpm_valido === true &&\n    typeof dados.bpm === \"number\" &&\n    dados.bpm > 120) {\n    alertas.push(\"BPM simulado elevado\");\n}\n\n// DHT22 mede temperatura ambiental.\nif (typeof dados.temperatura === \"number\" &&\n    dados.temperatura > 38) {\n    alertas.push(\"Temperatura ambiental elevada\");\n}\n\nif (alertas.length > 0) {\n    msg.payload = \"ALERTA: \" + alertas.join(\" | \");\n} else {\n    msg.payload = \"Monitoramento sem alertas ativos\";\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 520,
+        "wires": [
+            [
+                "05e535dd15a49976"
+            ]
+        ]
+    },
+    {
+        "id": "05e535dd15a49976",
+        "type": "ui-text",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "CardioIA - Alertas",
+        "label": "Status do monitoramento",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 790,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "4dde9424a894e5c6",
+        "type": "mqtt-broker",
+        "name": "HiveMQ - CardioIA",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "2b960898fd00a362",
+        "type": "ui-group",
+        "name": "Group 1",
+        "page": "abee4f3cb7e58563",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false,
+        "groupType": "default",
+        "tab": ""
+    },
+    {
+        "id": "abee4f3cb7e58563",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "a7a6dc091b509624",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "a167c78b5c343a9b",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "tabs": [],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "a7a6dc091b509624",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "a167c78b5c343a9b",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#fcfcfd",
+            "primary": "#0d74ce",
+            "bgPage": "#f9f9fb",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9e0"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "b7cbee770adfb4b0",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.33.0"
+        }
+    }
+]
