@@ -47,6 +47,22 @@ fase2/
   tests/            ← um arquivo por contrato/requisito do SDD + conftest.py + golden/
 ```
 
+## 5.1 Estrutura de arquivos — Fase 3 (IoT)
+
+```
+fase3/
+  esp32/            ← sketch.ino, diagram.json, libraries.txt (espelham o projeto Wokwi)
+  node_red/         ← cardioia-fase3-flow.json (fluxo do dashboard exportado)
+  docs/             ← relatorio_edge.md (Parte 1), relatorio_mqtt.md (Parte 2) + os .pdf correspondentes
+                       (os .pdf são exportações dos .md: regenerar sempre que o .md ou as evidências mudarem)
+    evidencias/     ← prints numerados (Wokwi/Serial, dashboard, editor do Node-RED)
+```
+
+- Dados 100% simulados (DHT22 + botão no Wokwi); nenhum dado de paciente.
+- `fase3/esp32/sketch.ino` e o projeto no Wokwi devem ser **o mesmo código**: ao editar um, copiar para o outro e refazer as evidências afetadas.
+- Limiares de alerta (BPM > 120 válido, temperatura > 38 °C) vivem no Node-RED e estão documentados em `fase3/README.md`; mudá-los exige atualizar o README e os relatórios.
+- O broker `broker.hivemq.com` é público e sem criptografia: nunca publicar dados reais.
+
 ## 6. Base de conhecimento (knowledge_base/)
 
 - Os 5 CSVs formam um grafo de entidades: ver SDD §3 para esquema e contratos.
@@ -103,4 +119,4 @@ Exemplos de escopo: `knowledge-base`, `extrator`, `classificador`, `harness`, `s
 
 ---
 
-*Última atualização: 2026-10-06 | Equipe Grupo S — FIAP*
+*Última atualização: 2026-11-02 | Equipe Grupo S — FIAP*

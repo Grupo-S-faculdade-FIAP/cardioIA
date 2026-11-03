@@ -11,6 +11,7 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 |---|---|---|---|
 | **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
 | **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
+| **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/477362937220720641) | Fila circular de 1.800 leituras com sincronização após reconexão; gráfico de BPM, gauge de temperatura e alertas automáticos (dados 100% simulados) |
 
 ## Integrantes
 
@@ -92,11 +93,11 @@ O projeto resolve a dificuldade enfrentada por médicos em cruzar, durante consu
 
 ## Links Públicos para Acesso aos Dados
 
-Em conformidade com os requisitos de entrega, os conjuntos completos de dados devem estar hospedados na nuvem, com link acessível para qualquer pessoa (necessário para a correção da FIAP). Os 3 conjuntos já estão gerados e organizados localmente (`data/processed/`, `assets/`) — falta apenas o upload para Drive/OneDrive e a cola do link abaixo:
+Em conformidade com os requisitos de entrega, os 3 conjuntos de dados estão hospedados na nuvem, neste repositório público do GitHub, com link acessível a qualquer pessoa sem login:
 
-* **Dados Numéricos** (`data/processed/pns_ckm_rce_2013.csv`): **[INSIRA_AQUI_O_LINK_PÚBLICO_DO_SEU_GOOGLE_DRIVE_OU_ONEDRIVE]**
-* **Dados Textuais** (pasta `assets/*.txt`): **[INSIRA_AQUI_O_LINK_PÚBLICO_DO_SEU_GOOGLE_DRIVE_OU_ONEDRIVE]**
-* **Dados Visuais** (pasta `assets/imagens_ecg/`): **[INSIRA_AQUI_O_LINK_PÚBLICO_DO_SEU_GOOGLE_DRIVE_OU_ONEDRIVE]**
+* **Dados Numéricos** (`data/processed/pns_ckm_rce_2013.csv`): [github.com/Grupo-S-faculdade-FIAP/cardioIA/…/pns_ckm_rce_2013.csv](https://github.com/Grupo-S-faculdade-FIAP/cardioIA/blob/main/data/processed/pns_ckm_rce_2013.csv)
+* **Dados Textuais** (pasta `assets/documentos_cientificos/`): [github.com/Grupo-S-faculdade-FIAP/cardioIA/…/documentos_cientificos](https://github.com/Grupo-S-faculdade-FIAP/cardioIA/tree/main/assets/documentos_cientificos)
+* **Dados Visuais** (pasta `assets/imagens_ecg/`): [github.com/Grupo-S-faculdade-FIAP/cardioIA/…/imagens_ecg](https://github.com/Grupo-S-faculdade-FIAP/cardioIA/tree/main/assets/imagens_ecg)
 
 ---
 
@@ -131,6 +132,10 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 │   ├── derive_ckm_stage.py                     # deriva classificadores clínicos e CKM_Stage (Camadas 2-4)
 │   └── calcular_prevent.R                      # Estágio 3 via escore PREVENT (pacote CVrisk, só em R)
 ├── fase2/                                      # FASE 2 — NLP, classificador de risco e vieses (ver fase2/README.md)
+├── fase3/                                      # FASE 3 — IoT: ESP32 (Edge), MQTT e dashboard Node-RED (ver fase3/README.md)
+│   ├── esp32/                                  # sketch.ino, diagram.json, libraries.txt (projeto Wokwi)
+│   ├── node_red/                               # fluxo exportado do dashboard (cardioia-fase3-flow.json)
+│   └── docs/                                   # relatorio_edge.md, relatorio_mqtt.md e evidencias/ (prints)
 ├── tests/
 │   ├── validar_extracao_pns.py                 # compara bruto (Excel) x tratado (CSV) linha a linha
 │   └── validar_ckm_stage.py                    # prova que CKM_Stage é consequência lógica fiel dos classificadores
