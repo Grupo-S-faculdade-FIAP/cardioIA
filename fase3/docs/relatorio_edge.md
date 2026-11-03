@@ -1,6 +1,11 @@
 # CardioIA — Fase 3
 ## Relatório Técnico — Parte 1: Edge Computing e Resiliência Offline
 
+> ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
+> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
+
+**Equipe (Grupo S — FIAP):** Caroline de Castro Corrêa (RM567255), Enzo França Sader (RM566928), Lucas Hideki Oliveira Koyama (RM566925), Rodrigo Dias Figueiroa (RM567800) e Tiago Lindgren Curi (RM567016).
+
 ### 1. Introdução
 
 O projeto CardioIA, desenvolvido no curso de Inteligência Artificial da FIAP, tem como objetivo explorar a aplicação de tecnologias inteligentes no contexto da saúde cardiovascular.
@@ -15,7 +20,7 @@ O protótipo utiliza um ESP32, um sensor DHT22 e um botão de pressão (pushbutt
 
 O DHT22 realiza leituras simuladas de temperatura e umidade relativa do ambiente. O pushbutton representa um simulador manual de pulsos cardíacos, permitindo calcular uma estimativa de batimentos por minuto (BPM) a partir do intervalo entre acionamentos sucessivos.
 
-O circuito foi desenvolvido na plataforma Wokwi e programado em C++, utilizando o ambiente Arduino e a biblioteca DHTesp.
+O circuito foi desenvolvido na plataforma Wokwi e programado em C++, utilizando o ambiente Arduino e a biblioteca DHTesp. O mesmo firmware foi estendido na Parte 2 com Wi-Fi e MQTT (biblioteca PubSubClient); este relatório descreve a camada Edge, e a comunicação com a nuvem está em [`relatorio_mqtt.md`](relatorio_mqtt.md).
 
 **Conexões utilizadas:**
 
@@ -40,7 +45,7 @@ Quando não existe uma estimativa válida, o programa identifica o BPM como indi
 
 ### 4. Estratégia de resiliência offline
 
-Para simular interrupções de conectividade, o programa utiliza uma variável booleana chamada `wifiConectado`.
+Para simular interrupções de conectividade, o programa utiliza uma variável booleana. Na versão inicial (somente Serial) ela se chamava `wifiConectado`; no firmware atual, que também faz a conexão real ao Wi-Fi do Wokwi e ao broker, o mesmo papel é exercido por `envioHabilitado`, alternada pelos comandos `f` e `o` do Monitor Serial. O dispositivo **inicia offline** para evidenciar a resiliência.
 
 Quando seu valor é `false`, o sistema entra em modo offline. Nesse estado, a coleta dos sensores continua normalmente, mas as leituras não são transmitidas.
 
@@ -56,21 +61,21 @@ Essa política de armazenamento limitado foi escolhida para demonstrar uma estra
 
 ### 5. Reconexão e sincronização
 
-Quando a conexão simulada é restaurada, a variável `wifiConectado` passa para `true`.
+Quando a conexão simulada é restaurada (comando `o`), a variável de conectividade passa para `true`.
 
 Nesse momento, o ESP32 inicia a sincronização dos registros pendentes, processando as leituras na ordem em que foram coletadas.
 
 A implementação limita o processamento a dez registros por passagem do loop principal, evitando concentrar toda a execução na rotina de sincronização.
 
-Nesta primeira parte da atividade, a transmissão é representada por mensagens estruturadas em formato JSON exibidas no Monitor Serial.
+Na versão inicial (Parte 1), a transmissão era representada por mensagens JSON exibidas no Monitor Serial, conforme o enunciado. No firmware atual, a mesma rotina publica cada leitura em JSON no tópico MQTT (Parte 2).
 
-A remoção de um registro da fila ocorre somente após a função de transmissão simulada retornar sucesso.
+A remoção de um registro da fila ocorre somente após a função de transmissão retornar sucesso, isto é, após `mqtt.publish()` aceitar a mensagem. Como a publicação usa QoS 0, esse sucesso indica apenas que a biblioteca enviou a mensagem, e não que o broker a recebeu; esse limite é discutido em [`relatorio_mqtt.md`](relatorio_mqtt.md).
 
-Na integração futura com MQTT, será necessário definir um mecanismo de confirmação compatível com o nível de garantia de entrega desejado.
+**Dimensionamento da fila.** Cada registro ocupa 24 bytes (dois `unsigned long`, três `float` e um `bool`, com alinhamento), então 1.800 registros usam cerca de 42 KB de RAM. Na compilação do firmware completo para ESP32 (PlatformIO, placa `esp32dev`), o uso total de RAM estática foi de cerca de 90 KB dos 320 KB disponíveis (27,6%), já incluindo a pilha Wi-Fi/MQTT e a fila. A capacidade de uma hora de coleta foi escolhida como compromisso entre autonomia offline e memória: para um monitor vestível, uma hora cobre quedas curtas de conectividade (deslocamentos, elevadores, instabilidade de rede) sem consumir parte relevante dos recursos do ESP32. Acima disso, a política é descartar a leitura mais antiga e manter as mais recentes, que são as mais relevantes para o monitoramento.
 
 ### 6. Testes realizados e resultados
 
-O funcionamento do protótipo foi verificado no ambiente Wokwi.
+O funcionamento do protótipo foi verificado no ambiente Wokwi. Os testes de coleta e de resiliência abaixo foram feitos na versão inicial do firmware (transmissão simulada pelo Serial); a verificação com publicação MQTT e dashboard está em [`relatorio_mqtt.md`](relatorio_mqtt.md) e nas capturas de [`evidencias/`](evidencias/).
 
 Inicialmente, foi confirmada a leitura periódica do DHT22, com valores simulados de temperatura e umidade apresentados no Monitor Serial.
 
@@ -100,7 +105,9 @@ Não foi implementado armazenamento persistente em SPIFFS, considerando as limit
 
 Além disso, o DHT22 mede temperatura e umidade ambientais, não temperatura corporal. Os pulsos cardíacos são simulados por acionamentos manuais e não representam medições obtidas de pacientes.
 
-A variável de conectividade simula o estado da rede, mas não corresponde à verificação de uma conexão Wi-Fi real. Da mesma forma, a transmissão desta etapa é demonstrada pelo Monitor Serial, sem envio efetivo para um serviço em nuvem.
+A variável de conectividade é um interruptor de teste (`f`/`o`): ela simula a queda e a volta da rede, mas não detecta falhas reais de Wi-Fi. A confiabilidade da entrega ao broker também é limitada pelo QoS 0 (ver `relatorio_mqtt.md`).
+
+Outra limitação é que os limiares de alerta são avaliados apenas no dashboard (camada Fog). Com o dispositivo offline, nenhum alerta é emitido: em um monitor real, o alerta local (por exemplo, LED ou buzzer no próprio dispositivo) seria parte essencial do Edge Computing.
 
 Para uma aplicação médica real, seriam necessários sensores adequados e validados, armazenamento persistente, proteção de dados, comunicação criptografada, autenticação, mecanismos confiáveis de confirmação de entrega e avaliação de segurança clínica.
 
@@ -110,10 +117,12 @@ A implementação da Parte 1 da Fase 3 demonstrou os principais conceitos de Edg
 
 O sistema conseguiu realizar leituras periódicas, calcular uma estimativa de BPM, armazenar informações temporariamente durante uma desconexão e sincronizar os registros após a recuperação da conectividade.
 
-A próxima etapa do projeto será a integração com um broker MQTT e a construção de dashboards interativos utilizando Node-RED, permitindo visualizar os dados e gerar alertas automáticos.
+Essa base foi então integrada a um broker MQTT e a um dashboard Node-RED com alertas automáticos, descritos no relatório da Parte 2.
 
 ### Referência do protótipo
 
 **Projeto no Wokwi:** https://wokwi.com/projects/477362937220720641
 
 **Repositório:** https://github.com/Grupo-S-faculdade-FIAP/cardioIA
+
+**Código:** [`fase3/esp32/sketch.ino`](../esp32/sketch.ino) · **Evidências:** [`fase3/docs/evidencias/`](evidencias/) · **Relatório da Parte 2:** [`relatorio_mqtt.md`](relatorio_mqtt.md)
