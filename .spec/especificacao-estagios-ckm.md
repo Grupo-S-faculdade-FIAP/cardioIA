@@ -228,7 +228,7 @@ Motivos concretos, específicos desta base:
 - [Development and Validation of the AHA's PREVENT Equations (Circulation, Khan et al. 2024)](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.123.067626) — variáveis exigidas e estrutura da equação
 - [Pacote R `CVrisk` (CRAN)](https://cran.r-project.org/web/packages/CVrisk/readme/README.html), motor `preventr` ([GitHub](https://github.com/martingmayer/preventr)) — implementação de terceiros dos coeficientes oficiais do PREVENT, usada em `src/calcular_prevent.R` em vez de transcrição manual
 - [High Prevalence of CKM Syndrome Among US Adults 1999-2020 (medRxiv)](https://www.medrxiv.org/content/10.1101/2024.03.04.24303751v1.full) e [Gender/Age-related Disparities in CKM Prevalence (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12874573/) — números usados na comparação da §6.1
-- [Cardiovascular-Kidney-Metabolic Syndrome: A Current and Urgent Concept (Jornal Brasileiro de Nefrologia/SciELO, 2025)](https://doi.org/10.1590/2175-8239-JBN-2024-0277en), CC BY 4.0 — artigo brasileiro sobre a diretriz, também incluído como texto da Parte 2 (`assets/ckm_current_urgent_concept.txt`)
+- [Cardiovascular-Kidney-Metabolic Syndrome: A Current and Urgent Concept (Jornal Brasileiro de Nefrologia/SciELO, 2025)](https://doi.org/10.1590/2175-8239-JBN-2024-0277en), CC BY 4.0 — artigo brasileiro sobre a diretriz, também incluído como texto da Parte 2 (`assets/documentos_cientificos/ckm_current_urgent_concept/recorte.txt`)
 - Literatura sobre RCE/WHtR vs. IMC e risco cardiometabólico — linha bibliográfica separada do critério oficial de estágio, usada para justificar por que a RCE é calculada e investigada neste projeto (não é, por si só, um critério de estágio 1)
 
 ## 8. Próximos passos

@@ -36,14 +36,14 @@ Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
 ```
 fase2/
-  config/           ← metas_avaliacao.json
-  data/             ← relatos_pacientes.txt, frases_risco.csv (+ _LINHAGEM.md), casos_comportamento.csv
+  config/           ← metas_avaliacao.json, teste_congelado.json
+  data/             ← relatos_pacientes.txt, frases_risco.csv (+ _LINHAGEM.md), frases_manuais.csv, casos_comportamento.csv
   knowledge_base/   ← 5 CSVs normalizados (conceitos, expressoes, atributos, associacoes, fontes)
                        + mapa_conhecimento.csv (DERIVADO — não editar à mão)
   notebooks/        ← 01_extracao_sintomas.ipynb, 02_classificador_risco.ipynb, 03_analise_vieses.ipynb
   reports/          ← metricas_todos.json gerado por avaliacao.py (versionado: é o resultado oficial)
   src/              ← extrator_sintomas.py, analisador_clinico.py, carregador_base.py, main.py,
-                       gerar_mapa_conhecimento.py, vieses.py, contrato_dataset.py, avaliacao.py
+                       gerar_mapa_conhecimento.py, gerar_frases_risco.py, classificador_regras.py, vieses.py, contrato_dataset.py, avaliacao.py
   tests/            ← um arquivo por contrato/requisito do SDD + conftest.py + golden/
 ```
 
@@ -57,7 +57,7 @@ fase3/
                        tests/ (funcoes.test.mjs, contrato.test.mjs, utilitarios.mjs)
   docs/             ← contrato_mqtt.md (FONTE ÚNICA do payload, do tópico e dos limiares),
                        relatorio_edge.md (Parte 1), relatorio_mqtt.md (Parte 2) + os .pdf correspondentes,
-                       roteiro_teste_wokwi.md (roteiro e prompt de teste ponta a ponta)
+                       roteiro_teste_wokwi.md (roteiro de teste manual ponta a ponta)
                        (os .pdf são exportações dos .md: regenerar sempre que o .md ou as evidências mudarem)
     evidencias/     ← prints numerados (Wokwi/Serial, dashboard, editor do Node-RED)
 ```
@@ -124,6 +124,15 @@ Exemplos de escopo: `knowledge-base`, `extrator`, `classificador`, `harness`, `s
 | `/validar-base-conhecimento` | Roda testes de contrato da base de conhecimento |
 | `/avaliar-classificador`     | Executa harness de avaliação + relatório     |
 | `/checklist-entrega`         | Checklist completo de entrega da Fase 2      |
+
+Agentes em `.claude/agents/` (o Claude Code os aciona pelo nome):
+
+| Agente | Para que serve |
+|---|---|
+| `revisor-clinico` | Revisa a base de conhecimento: contratos do SDD §3, correção clínica e rastreabilidade das fontes |
+| `devil-advocate` | Questiona relatos sintéticos, decisões da base e hipóteses do classificador; só aponta falhas, nunca propõe solução |
+| `registrar-decisao` | Cria CDRs (Clinical Decision Records) para decisões clínicas e pendências de validação |
+| `modo-autonomo` | Roda o pipeline (extração, classificação e avaliação) com evidência real e sem perguntas desnecessárias |
 
 ---
 
