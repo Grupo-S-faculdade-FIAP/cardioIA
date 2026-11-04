@@ -11,7 +11,7 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 |---|---|---|---|
 | **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
 | **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
-| **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/477362937220720641) | Fila circular de 1.800 leituras com sincronização após reconexão; gráfico de BPM, gauge de temperatura e alertas automáticos (dados 100% simulados) |
+| **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/479773169716093953) | 4 fontes de dados (DHT22, DS18B20, MPU6050 e botão de BPM); alerta local com LED/buzzer mesmo offline; fila circular de 1.800 leituras com sincronização após reconexão; dashboard com gráfico de BPM, gauges, movimento e alertas (dados 100% simulados) |
 
 ## Integrantes
 

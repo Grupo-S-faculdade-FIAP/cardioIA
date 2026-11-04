@@ -51,17 +51,22 @@ fase2/
 
 ```
 fase3/
-  esp32/            ← sketch.ino, diagram.json, libraries.txt (espelham o projeto Wokwi)
-  node_red/         ← cardioia-fase3-flow.json (fluxo do dashboard exportado)
-  docs/             ← relatorio_edge.md (Parte 1), relatorio_mqtt.md (Parte 2) + os .pdf correspondentes
+  esp32/            ← sketch.ino, diagram.json, libraries.txt (espelham o projeto Wokwi) + wifi_config.example.h
+                       (o wifi_config.h local é ignorado pelo Git: nunca commitar SSID/senha)
+  node_red/         ← cardioia-fase3-flow.json (fluxo do dashboard exportado), README.md, package.json,
+                       tests/ (funcoes.test.mjs, contrato.test.mjs, utilitarios.mjs)
+  docs/             ← contrato_mqtt.md (FONTE ÚNICA do payload, do tópico e dos limiares),
+                       relatorio_edge.md (Parte 1), relatorio_mqtt.md (Parte 2) + os .pdf correspondentes,
+                       roteiro_teste_wokwi.md (roteiro e prompt de teste ponta a ponta)
                        (os .pdf são exportações dos .md: regenerar sempre que o .md ou as evidências mudarem)
     evidencias/     ← prints numerados (Wokwi/Serial, dashboard, editor do Node-RED)
 ```
 
-- Dados 100% simulados (DHT22 + botão no Wokwi); nenhum dado de paciente.
-- `fase3/esp32/sketch.ino` e o projeto no Wokwi devem ser **o mesmo código**: ao editar um, copiar para o outro e refazer as evidências afetadas.
-- Limiares de alerta (BPM > 120 válido, temperatura > 38 °C) vivem no Node-RED e estão documentados em `fase3/README.md`; mudá-los exige atualizar o README e os relatórios.
+- Dados 100% simulados (DHT22, DS18B20, MPU6050 e botão no Wokwi); nenhum dado de paciente.
+- `fase3/esp32/sketch.ino`, `diagram.json`, `libraries.txt` e o projeto no Wokwi devem ser **o mesmo código**: ao editar um, copiar para o outro e refazer as evidências afetadas (roteiro em `fase3/docs/roteiro_teste_wokwi.md`).
+- Limiares de alerta: a **fonte única** é `fase3/docs/contrato_mqtt.md`. BPM válido > 120 e temperatura corporal > 38 °C existem nos dois lados (constantes `LIMITE_*` do firmware e nó "Verificar Alertas" do Node-RED); temperatura ambiental > 38 °C existe só no Node-RED; os 15 s de "sem movimento" (`TEMPO_SEM_MOVIMENTO_MS`) existem só no firmware (o Node-RED repassa o estado `parado`). Mudar um exige mudar o contrato, o outro lado, o `fase3/README.md` e os relatórios; `cd fase3/node_red && npm test` acusa a divergência.
 - O broker `broker.hivemq.com` é público e sem criptografia: nunca publicar dados reais.
+- Toda leitura mostrada como evidência vem do ESP32 **simulado** no Wokwi (não há hardware físico). Capturas de dados sintéticos (por exemplo, teste do dashboard com mensagem injetada) devem ser rotuladas como tal e nunca apresentadas como saída do Wokwi.
 
 ## 6. Base de conhecimento (knowledge_base/)
 
@@ -84,6 +89,9 @@ python -m pytest fase2/tests/test_base_conhecimento.py -v
 
 # Só golden (extrator)
 python -m pytest fase2/tests/test_extrator_golden.py -v
+
+# Fase 3 (Node-RED): regras dos nós + contrato firmware × fluxo × documentos
+cd fase3/node_red && npm test
 ```
 
 - `xfail_strict = true` (configurado em `pytest.ini`): se um teste marcado xfail começar a passar, vire erro — limpar o marcador.
@@ -119,4 +127,4 @@ Exemplos de escopo: `knowledge-base`, `extrator`, `classificador`, `harness`, `s
 
 ---
 
-*Última atualização: 2026-11-02 | Equipe Grupo S — FIAP*
+*Última atualização: 2026-11-04 | Equipe Grupo S — FIAP*
