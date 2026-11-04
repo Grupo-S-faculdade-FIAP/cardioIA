@@ -27,7 +27,10 @@
                 "d77e8678c98e8709",
                 "7eb254c076ad8038",
                 "8dac777d771d92c5",
-                "72a67da70dba0696"
+                "72a67da70dba0696",
+                "d22ba85a4971637b",
+                "b942fdf12c3984f4",
+                "4720c24b193f9756"
             ]
         ]
     },
@@ -156,14 +159,14 @@
         "z": "0862a29bc8751350",
         "name": "CardioIA - Temperatura",
         "group": "2b960898fd00a362",
-        "order": 0,
+        "order": 3,
         "value": "payload",
         "valueType": "msg",
         "width": 3,
         "height": 3,
         "gtype": "gauge-half",
         "gstyle": "needle",
-        "title": "Temperatura ambiental",
+        "title": "Temperatura ambiental (DHT22)",
         "alwaysShowTitle": false,
         "floatingTitlePosition": "top-left",
         "units": "°C",
@@ -226,7 +229,7 @@
         "type": "function",
         "z": "0862a29bc8751350",
         "name": "Verificar Alertas",
-        "func": "\nconst dados = msg.payload;\n\nif (!dados || typeof dados !== \"object\") {\n    return null;\n}\n\nconst alertas = [];\n\n// So analisa BPM quando a estimativa e valida.\nif (dados.bpm_valido === true &&\n    typeof dados.bpm === \"number\" &&\n    dados.bpm > 120) {\n    alertas.push(\"BPM simulado elevado\");\n}\n\n// DHT22 mede temperatura ambiental.\nif (typeof dados.temperatura === \"number\" &&\n    dados.temperatura > 38) {\n    alertas.push(\"Temperatura ambiental elevada\");\n}\n\nif (alertas.length > 0) {\n    msg.payload = \"ALERTA: \" + alertas.join(\" | \");\n} else {\n    msg.payload = \"Monitoramento sem alertas ativos\";\n}\n\nreturn msg;\n",
+        "func": "\nconst dados = msg.payload;\n\nif (!dados || typeof dados !== \"object\") {\n    return null;\n}\n\nconst alertas = [];\n\n// So analisa BPM quando a estimativa e valida.\nif (dados.bpm_valido === true &&\n    typeof dados.bpm === \"number\" &&\n    dados.bpm > 120) {\n    alertas.push(\"BPM simulado elevado\");\n}\n\n// Temperatura CORPORAL (DS18B20): limiar de febre.\nif (dados.temp_corporal_valida === true &&\n    typeof dados.temp_corporal === \"number\" &&\n    dados.temp_corporal > 38) {\n    alertas.push(\"Febre (temperatura corporal elevada)\");\n}\n\n// Parado alem do tempo limite (decidido no ESP32 a partir do MPU6050).\nif (dados.movimento === \"parado\") {\n    alertas.push(\"Sem movimento\");\n}\n\n// DHT22 mede temperatura ambiental, nao corporal.\nif (typeof dados.temperatura === \"number\" &&\n    dados.temperatura > 38) {\n    alertas.push(\"Temperatura ambiental elevada\");\n}\n\nif (alertas.length > 0) {\n    msg.payload = \"ALERTA: \" + alertas.join(\" | \");\n} else {\n    msg.payload = \"Monitoramento sem alertas ativos\";\n}\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -246,7 +249,7 @@
         "type": "ui-text",
         "z": "0862a29bc8751350",
         "group": "2b960898fd00a362",
-        "order": 0,
+        "order": 6,
         "width": 0,
         "height": 0,
         "name": "CardioIA - Alertas",
@@ -257,7 +260,7 @@
         "font": "",
         "fontSize": 16,
         "color": "#717171",
-        "wrapText": false,
+        "wrapText": true,
         "className": "",
         "value": "payload",
         "valueType": "msg",
@@ -394,5 +397,173 @@
         "modules": {
             "@flowfuse/node-red-dashboard": "1.33.0"
         }
+    },
+    {
+        "id": "d22ba85a4971637b",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Processar Temp. Corporal",
+        "func": "\nconst dados = msg.payload;\n\n// So usa a leitura quando o DS18B20 respondeu.\nif (!dados || dados.temp_corporal_valida !== true ||\n    typeof dados.temp_corporal !== \"number\") {\n    return null;\n}\n\nmsg.payload = dados.temp_corporal;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 600,
+        "wires": [
+            [
+                "f3ad0d2447617cc0"
+            ]
+        ]
+    },
+    {
+        "id": "f3ad0d2447617cc0",
+        "type": "ui-gauge",
+        "z": "0862a29bc8751350",
+        "name": "CardioIA - Temp. Corporal",
+        "group": "2b960898fd00a362",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Temperatura corporal (DS18B20)",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°C",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "30",
+                "color": "#4aa3ff",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "35",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "37.5",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "38",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 30,
+        "max": "42",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 830,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b942fdf12c3984f4",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Processar Movimento",
+        "func": "\nconst dados = msg.payload;\n\nif (!dados || typeof dados.movimento !== \"string\") {\n    return null;\n}\n\nconst textos = {\n    aguardando: \"Aguardando primeiro movimento\",\n    ativo: \"Em movimento\",\n    parado: \"SEM MOVIMENTO (parado além do tempo limite)\",\n    indisponivel: \"Sensor de movimento indisponível\"\n};\n\nlet texto = textos[dados.movimento] || dados.movimento;\nif (dados.movimento !== \"indisponivel\" &&\n    typeof dados.aceleracao_g === \"number\") {\n    texto += \" (|a| = \" + dados.aceleracao_g.toFixed(2) + \" g)\";\n}\n\nmsg.payload = texto;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 680,
+        "wires": [
+            [
+                "09453c46d90ef10f"
+            ]
+        ]
+    },
+    {
+        "id": "09453c46d90ef10f",
+        "type": "ui-text",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "CardioIA - Movimento",
+        "label": "Movimento (MPU6050)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 830,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "4720c24b193f9756",
+        "type": "function",
+        "z": "0862a29bc8751350",
+        "name": "Processar Alertas Locais",
+        "func": "\nconst dados = msg.payload;\n\nif (!dados || typeof dados.alertas_locais !== \"number\") {\n    return null;\n}\n\n// Bits: 1 = BPM elevado, 2 = febre, 4 = sem movimento.\nconst bits = dados.alertas_locais;\nconst lista = [];\nif (bits & 1) lista.push(\"BPM elevado\");\nif (bits & 2) lista.push(\"Febre\");\nif (bits & 4) lista.push(\"Sem movimento\");\n\nmsg.payload = lista.length > 0 ? lista.join(\" | \") : \"Nenhum\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 760,
+        "wires": [
+            [
+                "9471644d434a4f0a"
+            ]
+        ]
+    },
+    {
+        "id": "9471644d434a4f0a",
+        "type": "ui-text",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "CardioIA - Alertas locais",
+        "label": "Alertas locais do dispositivo (Edge)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 830,
+        "y": 760,
+        "wires": []
     }
 ]

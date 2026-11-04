@@ -4,3 +4,4 @@ __pycache__/
 .Rhistory
 .RData
 .Rproj.user/
+fase3/esp32/wifi_config.h
