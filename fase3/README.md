@@ -220,7 +220,7 @@ Todas as leituras vêm do **ESP32 simulado no Wokwi**: este projeto não usa har
 
 **Limites desta validação:** o buzzer foi verificado só pelo indicador visual de som do simulador (sem áudio); as 32 verificações foram feitas por um script de navegador que não está no repositório (o [roteiro](docs/roteiro_teste_wokwi.md) descreve os mesmos passos para execução manual); e ainda falta uma captura do editor do Node-RED com o fluxo carregado.
 
-**Outras verificações:** 86 testes automatizados passaram ([09](docs/evidencias/validacao-2026-11-04/09-testes-automatizados-86-passaram.png)); o dashboard também processou uma mensagem sintética no formato do firmware ([07](docs/evidencias/validacao-2026-11-04/07-dashboard-baseline-node-red.png) e [08](docs/evidencias/validacao-2026-11-04/08-dashboard-mqtt-mensagem-sintetica.png); dado gerado pelo teste, não pelo Wokwi). Uma execução anterior, no projeto `cardioiaiot` (ID 479766849694291969), está nas capturas [01](docs/evidencias/validacao-2026-11-04/01-wokwi-circuito-serial-offline.png) a [05](docs/evidencias/validacao-2026-11-04/05-wokwi-serial-sincronizacao-mqtt.png), e a [06](docs/evidencias/validacao-2026-11-04/06-wokwi-simulacao-serial.png) registra a falha de build que o projeto do link tinha antes de receber o `sketch.ino`.
+**Outras verificações:** 86 testes automatizados passaram ([09](docs/evidencias/validacao-2026-11-04/09-testes-automatizados-86-passaram.png)); o dashboard também processou uma mensagem sintética no formato do firmware ([07](docs/evidencias/validacao-2026-11-04/07-dashboard-baseline-node-red.png) e [08](docs/evidencias/validacao-2026-11-04/08-dashboard-mqtt-mensagem-sintetica.png); dado gerado pelo teste, não pelo Wokwi). Uma execução anterior, no projeto `cardioiaiot` (ID 479766849694291969), está nas capturas [01](docs/evidencias/validacao-2026-11-04/01-wokwi-circuito-serial-offline.png) e [05](docs/evidencias/validacao-2026-11-04/05-wokwi-serial-sincronizacao-mqtt.png), e a [06](docs/evidencias/validacao-2026-11-04/06-wokwi-simulacao-serial.png) registra a falha de build que o projeto do link tinha antes de receber o `sketch.ino`.
 
 O protocolo completo de validação está em [`docs/roteiro_teste_wokwi.md`](docs/roteiro_teste_wokwi.md).
 
@@ -242,7 +242,7 @@ fase3/
 │   ├── contrato_mqtt.md    # fonte única do payload, do tópico e dos limiares
 │   ├── relatorio_edge.md   # relatório da Parte 1 (+ .pdf com as mesmas informações)
 │   ├── relatorio_mqtt.md   # relatório da Parte 2 (+ .pdf com as mesmas informações)
-│   ├── roteiro_teste_wokwi.md   # roteiro e prompt de teste no Wokwi
+│   ├── roteiro_teste_wokwi.md   # roteiro de teste manual no Wokwi
 │   └── evidencias/         # prints numerados
 └── README.md
 ```
