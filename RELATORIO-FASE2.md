@@ -327,7 +327,7 @@ O SDD é a fonte de verdade do comportamento esperado: todo requisito da rubrica
 | R8 | Metas atingidas no teste manual | 2 | ✅ recall 0,90 |
 | R9 | Notebooks executam sem erro | (2) | ✅ |
 | R10 | Vieses medidos e discutidos | 2 | ✅ 6 tipos |
-| R11 | README completo, integrantes + RM, link vídeo | 1 | ⚠️ RMs e link pendentes |
+| R11 | README completo, integrantes + RM, link vídeo | 1 | ✅ RMs e vídeo preenchidos nos READMEs |
 
 ---
 
@@ -345,17 +345,18 @@ O SDD é a fonte de verdade do comportamento esperado: todo requisito da rubrica
 | `.claude/agents/` | 4 agentes especializados (revisor-clinico, devil-advocate, modo-autonomo, registrar-decisao) |
 | `.spec/` | `SDD-fase2-nlp-triagem.md` + ADRs + especificações da Fase 1 |
 | `.github/workflows/` | `ci-fase2.yml` |
+| `fase3/` | Fase 3 (IoT): `esp32/`, `node_red/`, `docs/` — fora do escopo deste relatório; ver `fase3/README.md` |
 
 ---
 
 ## 11. Próximos passos
 
-1. **Preencher os RMs e o link do vídeo** no `README.md` e `fase2/README.md` antes da submissão (R11 é o único requisito com item pendente).
+1. ~~Preencher os RMs e o link do vídeo~~ — **concluído** (ver `README.md` e `fase2/README.md`).
 2. **Validação clínica com a Dra. Fernanda:** critério de rótulo, pesos das associações, RELATO 08 — formalizar no formato CDR usando `/registrar-decisao`.
 3. **Revisão humana do dataset:** a equipe deve escrever um segundo conjunto de teste cego (sem conhecimento dos critérios A1–B3) para validação externa das frases manuais.
 4. **Lematização:** a limitação de conjugação verbal (recall 1/5 na dispneia grave com verbos no presente) é o bug mais impactante identificado — a correção natural é adicionar um lematizador PT-BR antes da lookup de expressões.
 5. **Recall por sexo com dado real:** cruzar as predições com a distribuição PNS 2013 por sexo para medir o viés de apresentação atípica em escala real.
-6. **Fase 3 — modelo preditivo:** usar `CKM_Stage` (Fase 1) como rótulo para treinar um classificador supervisionado nos dados numéricos, integrando o risco calculado na Fase 1 com os sintomas textuais da Fase 2.
+6. **Modelo preditivo (ideia futura):** usar `CKM_Stage` (Fase 1) como rótulo para treinar um classificador supervisionado nos dados numéricos, integrando o risco calculado na Fase 1 com os sintomas textuais da Fase 2. *A Fase 3 do curso acabou sendo dedicada a IoT (ESP32, MQTT e Node-RED) — ver [`fase3/README.md`](fase3/README.md) — e esta ideia segue em aberto.*
 
 ---
 

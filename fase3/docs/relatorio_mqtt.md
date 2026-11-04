@@ -2,6 +2,11 @@
 
 ## Relatório técnico — Parte 2: Comunicação MQTT, Fog/Cloud e dashboard de monitoramento
 
+> ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
+> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
+
+**Equipe (Grupo S — FIAP):** Caroline de Castro Corrêa (RM567255), Enzo França Sader (RM566928), Lucas Hideki Oliveira Koyama (RM566925), Rodrigo Dias Figueiroa (RM567800) e Tiago Lindgren Curi (RM567016).
+
 ### 1. Objetivo e escopo
 
 A segunda parte da Fase 3 do CardioIA demonstra a transmissão de dados de um protótipo de monitoramento baseado em IoT para uma camada de processamento e visualização. O dispositivo é um ESP32 **simulado no Wokwi**, conectado a um sensor DHT22 e a um botão de pressão que representa pulsos cardíacos manuais. O objetivo não é realizar diagnóstico médico, mas implementar e demonstrar coleta periódica, comunicação por MQTT, recepção de eventos e alertas em um dashboard.
@@ -64,7 +69,7 @@ A confirmação de `mqtt.publish(...)` indica que a biblioteca aceitou a publica
 O fluxo foi construído usando o Node-RED e os widgets da biblioteca `@flowfuse/node-red-dashboard` (Dashboard 2.0). Um nó `mqtt in` recebe os eventos do tópico do CardioIA e os encaminha a três funções independentes:
 
 1. **Processar BPM:** verifica se `bpm_valido` é verdadeiro e se `bpm` é numérico. Somente as leituras válidas seguem ao gráfico de linhas, cuja escala representa BPM.
-2. **Processar Temperatura:** verifica a presença de valor numérico em `temperatura` e o envia ao widget de medidor (*gauge*), configurado em graus Celsius.
+2. **Processar Temperatura:** verifica a presença de valor numérico em `temperatura` e o envia ao widget de medidor (*gauge*), configurado em graus Celsius, com escala de 0 a 50 °C e faixas de cor alinhadas ao limiar de alerta: verde até 30 °C, amarelo de 30 a 38 °C e vermelho a partir de 38 °C.
 3. **Verificar Alertas:** gera a mensagem `ALERTA: BPM simulado elevado` para BPM válido acima de 120; e `ALERTA: Temperatura ambiental elevada` para temperatura acima de 38 °C. Caso nenhuma condição seja atendida, o texto indica `Monitoramento sem alertas ativos`.
 
 Esses valores de corte são **regras demonstrativas**, escolhidas para o exercício acadêmico, e não critérios de diagnóstico. O status textual descreve a avaliação da mensagem recebida naquele instante; na implementação atual, a ausência de BPM válido não é diferenciada visualmente de uma medição válida sem alerta. Essa limitação deve ser corrigida antes de qualquer uso mais crítico.
@@ -81,15 +86,31 @@ Foram realizados testes funcionais na simulação Wokwi e no dashboard local do 
 | Coleta offline | Manter a transmissão desabilitada durante diversas leituras | Registros adicionados à fila (`[EDGE]`) |
 | Reconexão | Enviar `o` no Monitor Serial | Mensagens de conexão Wi-Fi/MQTT e publicações aceitas para as leituras pendentes |
 | Integração MQTT | Manter Wokwi e Node-RED em execução | Dashboard exibiu dados oriundos da simulação |
-| Gráfico | Produzir pulsos manuais válidos | Curva de BPM exibida, incluindo valores simulados entre aproximadamente 150 e 200 BPM em uma captura |
+| Gráfico | Produzir pulsos manuais válidos | Curva de BPM exibida, com valores simulados entre aproximadamente 80 e 200 BPM na captura 01 |
 | Temperatura | Manter DHT22 com temperatura ambiente de 24 °C | Gauge exibiu 24 °C |
 | Alerta de BPM | Simular pulsos que ultrapassam o limiar de 120 BPM | Texto `ALERTA: BPM simulado elevado` apareceu |
 | Recuperação do alerta de BPM | Parar de acionar o botão e aguardar a expiração da leitura | Texto de alerta desapareceu |
-| Alerta de temperatura | Ajustar o DHT22 simulado para 39 °C | Texto `ALERTA: Temperatura ambiental elevada` apareceu |
+| Alerta de temperatura | Ajustar o DHT22 simulado para 39 °C | Texto `ALERTA: Temperatura ambiental elevada` apareceu (captura 01, com 39,4 °C) |
 
 No gráfico, várias leituras reprocessadas após a reconexão foram apresentadas com instantes de chegada próximos, em vez dos instantes originais de coleta. Uma evolução futura seria usar os identificadores e timestamps de origem para posicionar os registros no tempo e distinguir dados atrasados de dados recebidos em tempo real.
 
-As capturas de tela podem ser organizadas em `fase3/docs/evidencias/` e vinculadas à entrega para demonstrar o funcionamento do circuito, do Monitor Serial e do dashboard. A pasta ainda necessita receber as imagens de evidência.
+**Evidências.** As capturas estão em [`evidencias/`](evidencias/) e são apresentadas na seção seguinte. Elas documentam a integração de ponta a ponta (a mesma leitura #15 aparece no Monitor Serial do Wokwi e no debug do Node-RED) e o alerta de temperatura. Os testes de alerta de BPM e de recuperação do alerta foram observados na simulação, mas não possuem captura própria.
+
+### 6.1 Capturas de tela
+
+As capturas foram feitas em 08 e 09/10/2026, antes da refatoração final do `sketch.ino`; por isso o texto exato das mensagens do Monitor Serial pode diferir do firmware atual, embora o fluxo demonstrado (coleta, fila, publicação e dashboard) seja o mesmo.
+
+**Captura 01 — Dashboard Node-RED com alerta de temperatura (DHT22 em 39,4 °C):**
+
+![Dashboard Node-RED](evidencias/01-dashboard-nodered.jpeg)
+
+**Captura 02 — Wokwi: circuito, Monitor Serial e publicação MQTT da leitura #15:**
+
+![Wokwi e Monitor Serial](evidencias/02-wokwi-serial-mqtt.jpeg)
+
+**Captura 03 — Editor do Node-RED: fluxo conectado ao broker e mensagens recebidas (debug):**
+
+![Editor do Node-RED](evidencias/03-nodered-editor-fluxo.jpeg)
 
 ### 7. Limitações, segurança e possíveis melhorias
 
@@ -97,7 +118,9 @@ O broker empregado é **público e não criptografado**, adequado exclusivamente
 
 O dispositivo é uma simulação: não existe sensor cardíaco real, avaliação clínica, calibração certificada ou validação de precisão. Além disso, o buffer em RAM não garante persistência após reinicialização, o MQTT em QoS 0 não garante entrega, e `millis()` não corresponde a um relógio sincronizado.
 
-Como próximos avanços são recomendados: armazenamento persistente quando aplicável, timestamps sincronizados, monitoramento do estado *sem dados válidos*, tratamento de falhas com confirmações fim a fim, proteção criptográfica, controle de acesso e testes automatizados para os limiares de alerta.
+Os limiares de alerta são avaliados somente no Node-RED (Fog): com o dispositivo offline não há alerta algum. Isso é aceitável para a demonstração, mas um monitor real precisaria de um alerta local no próprio ESP32.
+
+Como próximos avanços são recomendados: armazenamento persistente quando aplicável, timestamps sincronizados (por exemplo, NTP), monitoramento do estado *sem dados válidos*, alerta local no dispositivo (LED ou buzzer), tratamento de falhas com confirmações fim a fim, migração para um broker com TLS e autenticação (como o HiveMQ Cloud), controle de acesso e testes automatizados para os limiares de alerta.
 
 ### 8. Conclusão
 
@@ -113,3 +136,5 @@ O resultado atende ao propósito **didático** de demonstrar aquisição, transp
 - Fluxo Node-RED: `fase3/node_red/cardioia-fase3-flow.json`
 - Dashboard local (com Node-RED em execução): `http://localhost:1880/dashboard`
 - Relatório da Parte 1: `fase3/docs/relatorio_edge.md`
+- Evidências (capturas de tela): `fase3/docs/evidencias/`
+- Repositório: https://github.com/Grupo-S-faculdade-FIAP/cardioIA

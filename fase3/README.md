@@ -1,190 +1,179 @@
-# CardioIA — Fase 3
+# CardioIA — Fase 3: Monitoramento Contínuo — IoT na Saúde
 
-## Monitoramento Contínuo — IoT na Saúde
+> ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
+> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
-A Fase 3 do CardioIA tem como objetivo desenvolver um protótipo de monitoramento contínuo de sinais vitais, utilizando IoT, Edge Computing, comunicação MQTT e dashboards interativos.
+Protótipo de monitoramento contínuo de sinais vitais que integra **Edge Computing**, **MQTT** e **dashboard Node-RED**. Um ESP32 simulado no Wokwi coleta dados, guarda-os localmente quando a transmissão está indisponível e os sincroniza ao reconectar; o Node-RED, inscrito no mesmo tópico MQTT, exibe gráfico, medidor e alertas.
 
-O sistema simula um dispositivo de monitoramento cardíaco capaz de coletar dados, armazenar temporariamente informações durante falhas de conectividade e sincronizá-las quando a conexão é restabelecida.
+Todos os dados são **simulados**: nenhum dado real de paciente é coletado, armazenado ou transmitido.
 
-## Projeto no Wokwi
+## Integrantes
 
-**Simulação:** https://wokwi.com/projects/477362937220720641
-
-### Componentes utilizados
-
-| Componente | Função |
+| Nome completo | RM |
 |---|---|
-| ESP32 | Processamento e controle das leituras |
-| DHT22 | Medição simulada de temperatura e umidade |
-| Pushbutton | Simulação manual de pulsos cardíacos |
+| Caroline de Castro Corrêa | RM567255 |
+| Enzo França Sader | RM566928 |
+| Lucas Hideki Oliveira Koyama | RM566925 |
+| Rodrigo Dias Figueiroa | RM567800 |
+| Tiago Lindgren Curi | RM567016 |
 
-### Conexões
+## Links
 
-- DHT22: VCC → 3V3, SDA → GPIO 15, GND → GND.
-- Pushbutton: terminal `2.l` → GPIO 18; terminal `1.r` → GND.
+- **Projeto no Wokwi:** https://wokwi.com/projects/477362937220720641
+- **Repositório:** https://github.com/Grupo-S-faculdade-FIAP/cardioIA
+- **Relatório da Parte 1 (Edge Computing):** [`docs/relatorio_edge.md`](docs/relatorio_edge.md)
+- **Relatório da Parte 2 (MQTT e dashboard):** [`docs/relatorio_mqtt.md`](docs/relatorio_mqtt.md)
 
-## Parte 1 — Edge Computing
+## Arquitetura
 
-**Status: implementação funcional no Wokwi.**
+```text
+[DHT22 + botão] → ESP32 (Wokwi): coleta, estimativa de BPM e fila circular (Edge)
+                        │
+                        │ Wi-Fi (Wokwi-GUEST) / MQTT, TCP 1883, QoS 0
+                        ▼
+              broker.hivemq.com (público)
+                        │
+                        │ tópico cardioia/fiap/fase3/enzf-477362937220720641/sinais
+                        ▼
+              Node-RED (local) + Dashboard 2.0
+                ├── gráfico de BPM simulado
+                ├── gauge de temperatura ambiental
+                └── texto de alerta automático
+```
 
-O sistema realiza:
+## Componentes e conexões
 
-- Leitura de temperatura e umidade a cada dois segundos.
-- Detecção de pulsos simulados através do botão.
-- Estimativa de BPM baseada no intervalo entre acionamentos.
-- Simulação de estados online e offline.
-- Armazenamento temporário em fila circular.
-- Sincronização das leituras pendentes após reconexão.
-- Exibição das operações no Monitor Serial.
+| Componente | Função | Ligação |
+|---|---|---|
+| ESP32 DevKit C v4 | Processamento, fila Edge, Wi-Fi e MQTT | — |
+| DHT22 | Temperatura e umidade **ambientais** (conta como 1 sensor) | VCC → 3V3, SDA → GPIO 15, GND → GND |
+| Pushbutton | Simula pulsos cardíacos: cada clique é um batimento | Terminal `2.l` → GPIO 18, terminal `1.r` → GND (`INPUT_PULLUP`) |
 
-### Resiliência offline
+O BPM é calculado como `60000 / intervalo entre cliques (ms)`, aceito para intervalos de 300 a 2000 ms (30 a 200 BPM). Sem clique por 4 s, a estimativa expira e a leitura é marcada com `bpm_valido: false`.
 
-A fila circular possui capacidade para **1.800 leituras**, equivalente a aproximadamente uma hora de coleta a cada dois segundos.
+## Parte 1 — Edge Computing e resiliência offline
 
-Quando a conexão simulada está indisponível, as leituras continuam sendo coletadas e armazenadas na memória do ESP32.
+**Status: concluída.**
 
-Ao restaurar a conexão, os registros pendentes são transmitidos sequencialmente, preservando a ordem de coleta.
+- Leitura do DHT22 a cada 2 s e detecção de pulsos do botão com *debounce* (40 ms), sem `delay()`.
+- Toda leitura entra primeiro em uma **fila circular em RAM com 1.800 posições**, o equivalente a cerca de 1 hora de coleta (1.800 × 2 s).
+- A variável booleana `envioHabilitado` simula a conectividade. O dispositivo **inicia offline** para evidenciar a resiliência: a coleta continua e a fila cresce.
+- Ao habilitar o envio, o ESP32 conecta no Wi-Fi e no broker e esvazia a fila **em ordem de coleta**, até 10 leituras por passagem do `loop()`.
+- Se a fila enche, a leitura **mais antiga é descartada** e o evento é contado (`Leituras descartadas` no status).
+- Uma leitura só sai da fila depois que `mqtt.publish()` a aceita; se a publicação falha, ela permanece pendente.
 
-Se a fila atingir sua capacidade máxima, a leitura mais antiga é descartada e o evento é contabilizado.
-
-### Comandos do Monitor Serial
+### Comandos no Monitor Serial
 
 | Comando | Ação |
 |---|---|
-| `f` | Simular perda de conexão |
-| `o` | Restaurar conexão |
-| `s` | Consultar status |
+| `f` | Simula perda de conexão (desabilita o envio e desconecta do broker) |
+| `o` | Restaura a conexão (habilita o envio e sincroniza a fila) |
+| `s` | Exibe o status: conectividade, leituras pendentes e descartadas |
 
-### Limitações
+### SPIFFS
 
-O armazenamento utilizado é volátil e não persiste após o encerramento da simulação.
+O uso de SPIFFS é opcional e só persiste em ESP32 físico (no simulador o sistema de arquivos é volátil). Por isso a fila fica em RAM, e o Monitor Serial é a alternativa de resiliência permitida pelo enunciado.
 
-O BPM representa uma estimativa baseada em acionamentos manuais, não uma medição fisiológica real.
+## Parte 2 — Transmissão MQTT e dashboard (Fog/Cloud)
 
-A transmissão da Parte 1 é simulada por mensagens no Monitor Serial. O envio real através de MQTT será implementado na Parte 2.
+**Status: concluída.**
+
+- **Broker:** `broker.hivemq.com`, porta `1883`, sem TLS e sem autenticação.
+- **Tópico:** `cardioia/fiap/fase3/enzf-477362937220720641/sinais`
+- **Biblioteca:** PubSubClient, publicação com **QoS 0**.
+
+Exemplo de mensagem:
+
+```json
+{
+  "dispositivo": "cardioia-esp32-01",
+  "id": 9,
+  "timestamp_ms": 18000,
+  "temperatura": 24.0,
+  "umidade": 40.0,
+  "bpm": 0.0,
+  "bpm_valido": false
+}
+```
+
+`timestamp_ms` é o `millis()` do ESP32 desde a inicialização, **não** um horário civil.
+
+### Dashboard Node-RED
+
+O fluxo exportado está em [`node_red/cardioia-fase3-flow.json`](node_red/cardioia-fase3-flow.json) (Dashboard 2.0, `@flowfuse/node-red-dashboard` 1.33.0).
+
+| Widget | O que mostra | Regra |
+|---|---|---|
+| Gráfico de linha | Frequência cardíaca (BPM simulado) | Só plota leituras com `bpm_valido = true` |
+| Gauge | Temperatura ambiental (°C), escala de 0 a 50 | Verde até 30 °C, amarelo de 30 a 38 °C, vermelho a partir de 38 °C |
+| Texto de status | Alertas automáticos | Ver tabela abaixo |
+
+| Condição | Mensagem exibida |
+|---|---|
+| BPM válido **> 120** | `ALERTA: BPM simulado elevado` |
+| Temperatura **> 38 °C** | `ALERTA: Temperatura ambiental elevada` |
+| As duas acima | `ALERTA: BPM simulado elevado \| Temperatura ambiental elevada` |
+| Nenhuma | `Monitoramento sem alertas ativos` |
+
+Os limiares são **regras demonstrativas** do exercício. O DHT22 mede temperatura do ambiente, então o alerta de temperatura **não indica febre**.
 
 ## Como executar
 
-1. Acesse o projeto no Wokwi.
-2. Inicie a simulação.
-3. Pressione o botão para simular pulsos.
-4. Observe temperatura, umidade e BPM no Monitor Serial.
-5. Mantenha o dispositivo offline para acumular leituras.
-6. Envie o comando `o` no terminal para simular a reconexão.
-7. Observe a sincronização dos registros pendentes.
+### 1. Simulação (Wokwi)
+
+1. Abra o projeto no Wokwi e inicie a simulação.
+2. Observe o Monitor Serial: o dispositivo começa **offline**, coletando e guardando leituras (`[EDGE] Leitura #N armazenada`).
+3. Clique no botão em ritmo constante para simular pulsos e ver o BPM.
+4. Digite `s` para ver o status e, depois, `o` para habilitar o envio: o ESP32 conecta e publica as leituras pendentes (`[MQTT] Publicacao aceita`, `[SYNC]`).
+5. Digite `f` para simular nova queda e `o` para sincronizar de novo.
+
+Para provocar os alertas: cliques com intervalo menor que 500 ms resultam em BPM acima de 120; clicando no DHT22 e ajustando a temperatura para 39 °C, o alerta de temperatura é disparado.
+
+### 2. Dashboard (Node-RED)
+
+1. Instale o Node-RED e, na paleta, o pacote `@flowfuse/node-red-dashboard`.
+2. Importe [`node_red/cardioia-fase3-flow.json`](node_red/cardioia-fase3-flow.json) (Menu → Import).
+3. Confirme que o nó de broker `HiveMQ - CardioIA` está conectado a `broker.hivemq.com:1883` e clique em **Deploy**.
+4. Com o Wokwi em execução e o envio habilitado (`o`), abra http://localhost:1880/dashboard.
+
+## Evidências
+
+As capturas ficam em [`docs/evidencias/`](docs/evidencias/). Foram feitas em 08 e 09/10/2026, **antes da refatoração final do `sketch.ino`**, então o texto exato das mensagens do Monitor Serial pode diferir do sketch atual. O fluxo demonstrado (coleta, fila, publicação MQTT e dashboard) é o mesmo.
+
+**Dashboard com alerta de temperatura (DHT22 ajustado para 39,4 °C):**
+
+![Dashboard Node-RED](docs/evidencias/01-dashboard-nodered.jpeg)
+
+**Wokwi: circuito, Monitor Serial e publicação MQTT (leitura #15):**
+
+![Wokwi e Monitor Serial](docs/evidencias/02-wokwi-serial-mqtt.jpeg)
+
+**Editor do Node-RED: fluxo conectado ao broker e mensagens recebidas (leitura #15 no debug):**
+
+![Editor do Node-RED](docs/evidencias/03-nodered-editor-fluxo.jpeg)
 
 ## Estrutura
 
 ```text
 fase3/
 ├── esp32/
-│   ├── sketch.ino
-│   ├── diagram.json
-│   └── libraries.txt
+│   ├── sketch.ino          # firmware comentado (C++/Arduino)
+│   ├── diagram.json        # circuito do Wokwi
+│   └── libraries.txt       # DHT sensor library for ESPx, PubSubClient
+├── node_red/
+│   └── cardioia-fase3-flow.json   # fluxo + dashboard exportados
 ├── docs/
-│   └── evidencias/
+│   ├── relatorio_edge.md   # relatório da Parte 1 (+ .pdf com as mesmas informações)
+│   ├── relatorio_mqtt.md   # relatório da Parte 2 (+ .pdf com as mesmas informações)
+│   └── evidencias/         # prints numerados
 └── README.md
 ```
 
-## Parte 2 — Fog/Cloud Computing
+## Limitações e segurança
 
-**Status: pendente.**
-
-Próximas implementações:
-
-- Publicação de dados utilizando MQTT.
-- Integração com broker MQTT.
-- Recebimento das mensagens no Node-RED.
-- Dashboard com gráfico de sinais vitais.
-- Medidor de temperatura.
-- Alertas automáticos.
-
-## Aviso
-
-Este projeto é um protótipo acadêmico desenvolvido com sensores simulados. Não constitui dispositivo médico validado nem deve ser utilizado para diagnóstico ou monitoramento clínico real.
-
-
-## Arquitetura da solução
-
-O protótipo utiliza um ESP32 simulado no Wokwi, integrado
-a um broker MQTT público e a um dashboard Node-RED.
-
-Fluxo de comunicação:
-
-ESP32 (Wokwi)
-    |
-    | Wi-Fi / MQTT
-    v
-HiveMQ Public Broker
-    |
-    v
-Node-RED
-    |
-    +-- Gráfico de BPM simulado
-    +-- Medidor de temperatura ambiental
-    +-- Alertas automáticos
-
-## Sensores simulados
-
-- DHT22: temperatura e umidade ambiental.
-- Pushbutton: simulação manual de pulsos cardíacos.
-
-O BPM é uma estimativa demonstrativa calculada a partir
-dos intervalos entre os acionamentos do botão.
-
-## Comunicação MQTT
-
-Broker: broker.hivemq.com
-
-Porta: 1883
-
-Tópico:
-cardioia/fiap/fase3/enzf-477362937220720641/sinais
-
-O broker é público e não utiliza autenticação ou
-criptografia nesta configuração. Não devem ser enviados
-dados pessoais ou clínicos reais.
-
-## Resiliência offline
-
-O ESP32 mantém uma fila circular com capacidade para
-1.800 leituras.
-
-Comandos disponíveis no Monitor Serial:
-
-- f: desabilita a transmissão MQTT.
-- o: habilita a transmissão e tenta sincronizar a fila.
-- s: exibe o status do dispositivo.
-
-A fila é mantida em memória RAM e não persiste após
-reinicialização do ESP32.
-
-## Dashboard Node-RED
-
-O fluxo exportado está disponível em:
-
-node_red/cardioia-fase3-flow.json
-
-Para reproduzir:
-
-1. Instale o Node-RED.
-2. Instale @flowfuse/node-red-dashboard.
-3. Importe o arquivo JSON no editor Node-RED.
-4. Configure e conecte o broker MQTT, se necessário.
-5. Faça Deploy.
-6. Acesse http://localhost:1880/dashboard.
-
-## Documentação técnica
-
-- docs/relatorio_edge.md
-- docs/relatorio_mqtt.md
-
-## Observações
-
-Este projeto é um protótipo acadêmico.
-
-O DHT22 mede temperatura ambiental, não corporal.
-O BPM é simulado e não representa uma medição clínica.
-
-A publicação MQTT utiliza QoS 0, sem garantia de
-entrega de ponta a ponta.
+- **Armazenamento volátil:** a fila vive em RAM. Reiniciar o ESP32 apaga as leituras ainda não enviadas.
+- **QoS 0:** `publish()` aceito significa que a biblioteca enviou a mensagem, não que o broker ou o Node-RED a receberam. Não há confirmação ponta a ponta.
+- **Broker público e sem criptografia:** adequado apenas a dados fictícios. Em produção seriam necessários TLS, autenticação e controle de acesso por tópico.
+- **Sem relógio real:** `timestamp_ms` é relativo ao boot. Leituras reenviadas após a reconexão aparecem no gráfico no horário de chegada, não no de coleta.
+- **Alertas só na camada Fog:** os limiares são avaliados no Node-RED; com o dispositivo offline não há alerta.
+- **Sinais não fisiológicos:** o DHT22 mede o ambiente e o BPM vem de cliques manuais. Nada aqui é uma medição clínica.

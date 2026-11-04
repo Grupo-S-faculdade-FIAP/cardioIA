@@ -2,7 +2,7 @@
     {
         "id": "0862a29bc8751350",
         "type": "tab",
-        "label": "Flow 1",
+        "label": "CardioIA Fase 3",
         "disabled": false,
         "info": "",
         "env": []
@@ -178,13 +178,13 @@
                 "textType": "label"
             },
             {
-                "from": "4",
+                "from": "30",
                 "color": "#ffc800",
                 "text": "",
                 "textType": "label"
             },
             {
-                "from": "7",
+                "from": "38",
                 "color": "#ea5353",
                 "text": "",
                 "textType": "label"
@@ -299,7 +299,7 @@
     {
         "id": "2b960898fd00a362",
         "type": "ui-group",
-        "name": "Group 1",
+        "name": "Sinais vitais simulados",
         "page": "abee4f3cb7e58563",
         "width": 6,
         "height": 1,
@@ -314,7 +314,7 @@
     {
         "id": "abee4f3cb7e58563",
         "type": "ui-page",
-        "name": "Page 1",
+        "name": "Monitoramento",
         "ui": "a7a6dc091b509624",
         "path": "/page1",
         "icon": "home",
@@ -351,7 +351,7 @@
     {
         "id": "a7a6dc091b509624",
         "type": "ui-base",
-        "name": "My Dashboard",
+        "name": "CardioIA - Monitoramento IoT",
         "path": "/dashboard",
         "appIcon": "",
         "includeClientData": true,
