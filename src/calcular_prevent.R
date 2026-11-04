@@ -19,7 +19,15 @@ library(readxl)
 library(dplyr)
 library(CVrisk)
 
-repo_root <- "C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA"
+# Raiz do repositório: a pasta acima de src/ quando rodado com `Rscript src/calcular_prevent.R`;
+# em sessão interativa, o diretório de trabalho (abra o R na raiz do repositório).
+arg_script <- sub("^--file=", "", grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE))
+repo_root <- if (length(arg_script) > 0) normalizePath(file.path(dirname(arg_script[1]), "..")) else normalizePath(getwd())
+
+# Rótulos relativos (é o que vai para o log de linhagem, sem expor o caminho da máquina).
+rotulo_bruto <- "data/raw/pns_2013_exames/EXAMES-PNS-2013-FINAL_05052023.xlsx"
+rotulo_estagios <- "data/processed/pns_ckm_estagios_2013.csv"
+rotulo_saida <- "data/processed/pns_ckm_prevent_2013.csv"
 caminho_bruto <- file.path(repo_root, "data/raw/pns_2013_exames/EXAMES-PNS-2013-FINAL_05052023.xlsx")
 caminho_estagios <- file.path(repo_root, "data/processed/pns_ckm_estagios_2013.csv")
 caminho_saida <- file.path(repo_root, "data/processed/pns_ckm_prevent_2013.csv")
@@ -31,12 +39,12 @@ log <- function(msg) {
   linhas_log <<- c(linhas_log, msg)
 }
 
-log(sprintf("Lendo bruto (P050 tabagismo, Q006 uso de anti-hipertensivo): %s", caminho_bruto))
+log(sprintf("Lendo bruto (P050 tabagismo, Q006 uso de anti-hipertensivo): %s", rotulo_bruto))
 bruto <- read_excel(caminho_bruto) %>%
   select(P050, Q006) %>%
   mutate(P050 = as.character(P050), Q006 = as.character(Q006))
 
-log(sprintf("Lendo dataset com estagios ja calculados: %s", caminho_estagios))
+log(sprintf("Lendo dataset com estagios ja calculados: %s", rotulo_estagios))
 dados <- read.csv(caminho_estagios, na.strings = c("NA", ""))
 
 if (nrow(bruto) != nrow(dados)) {
@@ -124,7 +132,7 @@ for (i in seq_along(tabela_estagios)) {
 # ja presentes no CSV, entao nao vao pro arquivo final.
 dados_finais <- dados %>% select(-Sexo_CVrisk, -Diabetes_bin, -Fumante_bin, -BP_Med_bin, -Statin_bin)
 write.csv(dados_finais, caminho_saida, row.names = FALSE, na = "")
-log(sprintf("\n%d linhas salvas em %s", nrow(dados), caminho_saida))
+log(sprintf("\n%d linhas salvas em %s", nrow(dados), rotulo_saida))
 
 writeLines(
   c(

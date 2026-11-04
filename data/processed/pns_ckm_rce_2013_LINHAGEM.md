@@ -47,5 +47,5 @@ Valores ausentes por coluna:
 
 Para Insuficiencia_Cardiaca/Doenca_Coronariana/Infarto_Miocardio (Q06303/Q06302/Q06301), a alta taxa de ausência não é dado perdido: só é perguntado a quem respondeu 'Sim' à pergunta guarda-chuva 'algum médico já lhe deu diagnóstico de doença do coração' (Q063).
 
-8952 linhas salvas em C:\Users\caroo\OneDrive\Desktop\FIAP\projetos\cardioIA\data\processed\pns_ckm_rce_2013.csv
+8952 linhas salvas em data/processed/pns_ckm_rce_2013.csv
 ```
