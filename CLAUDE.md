@@ -57,8 +57,9 @@ fase3/
                        tests/ (funcoes.test.mjs, contrato.test.mjs, utilitarios.mjs)
   docs/             ← contrato_mqtt.md (FONTE ÚNICA do payload, do tópico e dos limiares),
                        relatorio_edge.md (Parte 1), relatorio_mqtt.md (Parte 2) + os .pdf correspondentes,
-                       roteiro_teste_wokwi.md (roteiro de teste manual ponta a ponta)
-                       (os .pdf são exportações dos .md: regenerar sempre que o .md ou as evidências mudarem)
+                       roteiro_teste_wokwi.md (roteiro de teste manual ponta a ponta),
+                       gerar_pdfs.py (gera os .pdf: `python fase3/docs/gerar_pdfs.py`; exige pandoc e Edge/Chrome)
+                       (os .pdf são exportações dos .md: regenerar com o gerar_pdfs.py sempre que o .md ou as evidências mudarem)
     evidencias/     ← prints numerados (Wokwi/Serial, dashboard, editor do Node-RED)
 ```
 

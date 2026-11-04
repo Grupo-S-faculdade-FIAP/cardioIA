@@ -7,6 +7,12 @@ Protótipo de monitoramento contínuo de sinais vitais que integra **Edge Comput
 
 Todos os dados são **simulados**: nenhum dado real de paciente é coletado, armazenado ou transmitido.
 
+## Onde a Fase 3 se encaixa no CardioIA
+
+O CardioIA é um sistema acadêmico de apoio à decisão clínica (CDSS) para a triagem precoce da síndrome cardiorrenal-metabólica (CKM). A **Fase 1** estruturou os dados (PNS 2013, artigos científicos e ECGs) e derivou o estágio CKM; a **Fase 2** aplicou NLP e um classificador de risco a relatos *sintéticos* de pacientes. A **Fase 3** acrescenta a camada de **monitoramento contínuo**: um dispositivo vestível simulado coleta sinais vitais, decide alertas no próprio dispositivo e transmite a telemetria a um dashboard.
+
+As frentes ainda **não estão integradas**: o protótipo da Fase 3 não calcula nem consome o estágio CKM, e os sinais que monitora (BPM simulado, temperatura e movimento) e seus limiares são regras demonstrativas, sem validação clínica. Quais sinais contínuos interessam à triagem da CKM, e com quais limiares, é **pendência de validação da Dra. Fernanda Fassina**; esta seção não faz nenhuma afirmação clínica sobre isso.
+
 ## Integrantes
 
 | Nome completo | RM |
@@ -43,7 +49,9 @@ Todos os dados são **simulados**: nenhum dado real de paciente é coletado, arm
                     ├── gráfico de BPM simulado
                     ├── gauge de temperatura corporal e gauge de temperatura ambiental
                     ├── movimento e alertas locais do dispositivo
-                    └── texto de alerta automático (regras do Fog)
+                    ├── banner de alerta + texto de alerta automático (regras do Fog)
+                    ├── watchdog "sem dados" (avisa se o ESP32 parar de enviar)
+                    └── aviso clínico
 ```
 
 ## Componentes e conexões
@@ -86,8 +94,9 @@ Os alertas são avaliados em **dois lugares**: no ESP32 (Edge, aciona LED e buzz
 | Temperatura corporal (DS18B20) **> 38 °C** | LED + buzzer | `Febre (temperatura corporal elevada)` |
 | Parado por 15 s depois de já ter havido movimento | LED (sem buzzer) | `Sem movimento` |
 | Temperatura ambiental (DHT22) **> 38 °C** | — | `Temperatura ambiental elevada` |
+| Nenhuma leitura recebida por **30 s** | — | `SEM DADOS: …` (watchdog, só no dashboard) |
 
-No dashboard, alertas simultâneos são concatenados com ` | ` depois de `ALERTA: `; sem nenhum, o texto é `Monitoramento sem alertas ativos`. O buzzer dá um bipe de 150 ms por segundo enquanto houver alerta crítico (BPM ou febre). No boot há um autoteste de 200 ms do LED e do buzzer.
+No dashboard, alertas simultâneos são concatenados com ` | ` depois de `ALERTA: `; sem nenhum, o texto é `Monitoramento sem alertas ativos`. O **banner** no topo do painel resume o estado em uma palavra e uma cor: vermelho (`ALERTA`), laranja (`SEM DADOS`), verde (`SEM ALERTAS`) ou cinza (`AGUARDANDO DADOS`, antes da primeira leitura). O buzzer dá um bipe de 150 ms por segundo enquanto houver alerta crítico (BPM ou febre). No boot há um autoteste de 200 ms do LED e do buzzer.
 
 ## Parte 1 — Edge Computing e resiliência offline
 
@@ -99,6 +108,7 @@ No dashboard, alertas simultâneos são concatenados com ` | ` depois de `ALERTA
 - Ao habilitar o envio, o ESP32 conecta no Wi-Fi e no broker e esvazia a fila **em ordem de coleta**, até 10 leituras por passagem do `loop()`.
 - Se a fila enche, a leitura **mais antiga é descartada** e o evento é contado (`Leituras descartadas` no status).
 - Uma leitura só sai da fila depois que `mqtt.publish()` a aceita; se a publicação falha, ela permanece pendente.
+- Cada leitura enviada aparece no Monitor Serial com um resumo do dado (`[MQTT] Publicacao aceita: #12 | amb 24.0 C | corpo 36.5 C | BPM indisponivel`): é o "envio via `Serial.println`" que o enunciado descreve, agora junto da publicação MQTT.
 
 ### Comandos no Monitor Serial
 
@@ -161,6 +171,9 @@ O fluxo exportado está em [`node_red/cardioia-fase3-flow.json`](node_red/cardio
 | Texto | Movimento (MPU6050) | `Em movimento`, `Aguardando primeiro movimento`, `SEM MOVIMENTO…` ou `Sensor de movimento indisponível`, com o módulo da aceleração |
 | Texto | Alertas locais do dispositivo (Edge) | Decodifica `alertas_locais`: `Nenhum` ou a lista (`BPM elevado`, `Febre`, `Sem movimento`) |
 | Texto | Status do monitoramento (Fog) | Regras da tabela de alertas acima |
+| Banner (template) | Estado do painel em uma palavra e uma cor: `ALERTA`, `SEM DADOS`, `SEM ALERTAS` ou `AGUARDANDO DADOS` | Lê o texto de status (nó "Verificar Alertas" e watchdog) |
+| Aviso clínico (template) | Aviso obrigatório do CLAUDE.md §3, no rodapé do painel | Texto fixo |
+| Watchdog "sem dados" (`switch` + `trigger`) | Sem nenhuma leitura por 30 s, o status e o banner passam a `SEM DADOS: …`; na leitura seguinte voltam ao normal | Só objetos JSON reiniciam o prazo; texto solto e JSON quebrado não contam |
 
 O DHT22 mede o ambiente: o alerta de temperatura ambiental **não indica febre**. A febre é avaliada no DS18B20.
 
@@ -190,25 +203,44 @@ Para provocar cada alerta:
 3. Confirme que o nó de broker `HiveMQ - CardioIA` está conectado a `broker.hivemq.com:1883` e clique em **Deploy**.
 4. Com o Wokwi em execução e o envio habilitado (`o`), abra http://localhost:1880/dashboard.
 
-Os testes automatizados do fluxo (regras de cada nó e contrato firmware × fluxo × documentos) rodam com `npm test` dentro de `fase3/node_red`.
+Os testes automatizados do fluxo (regras de cada nó, contrato firmware × fluxo × documentos e watchdog) rodam com `npm test` dentro de `fase3/node_red`.
+
+### 3. Compilar fora do Wokwi (opcional)
+
+Para conferir que o `sketch.ino` compila no mesmo core do Wokwi (Arduino-ESP32 3.3.x), crie um projeto PlatformIO com o `sketch.ino` em `src/` e este `platformio.ini` (ele fica fora do repositório para que `esp32/` continue espelhando o projeto do Wokwi):
+
+```ini
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+lib_deps =
+    beegee-tokyo/DHT sensor library for ESPx
+    knolleary/PubSubClient
+    paulstoffregen/OneWire
+    milesburton/DallasTemperature
+```
+
+Resultado de referência (2026-11-04): `espressif32@8.0.0` com `framework-arduinoespressif32` 3.3.12 e as bibliotecas DHT sensor library for ESPx 1.19.0, PubSubClient 2.8.0, OneWire 2.3.8 e DallasTemperature 4.0.6. O sketch compila sem avisos, com RAM de 32,5 % (106.492 bytes) e flash de 77,9 % (1.021.687 bytes). Sem o `wifi_config.h` local, vale o padrão `Wokwi-GUEST`.
 
 ## Evidências
 
 Todas as leituras vêm do **ESP32 simulado no Wokwi**: este projeto não usa hardware físico. As capturas ficam em [`docs/evidencias/validacao-2026-11-04/`](docs/evidencias/validacao-2026-11-04/); as capturas antigas, de uma versão anterior do firmware, foram removidas.
 
-**Execução final no projeto do Wokwi indicado em "Links"** (ID 479773169716093953, em 2026-11-04). O projeto tem `sketch.ino`, compila e roda; os arquivos são os de `esp32/`, exceto pela configuração opcional de Wi-Fi do `sketch.ino`, que usa `Wokwi-GUEST` por padrão e não muda o comportamento na simulação. A simulação rodou em sessão anônima de um navegador automatizado (de 35 % a 80 % da velocidade real) e o dashboard foi o do Node-RED local, lendo o broker público. Foram 32 verificações, todas aprovadas:
+**Execução final (2026-11-04).** O `sketch.ino` do repositório foi colado no editor da página do projeto do Wokwi indicado em "Links" (ID 479773169716093953) e rodou numa sessão anônima de um navegador automatizado (Playwright com Edge), de 18 % a 43 % da velocidade real, com o dashboard do Node-RED local (fluxo do repositório) lendo o broker público. O Serial foi lido pelo console da página e o dashboard pelo DOM: 38 verificações, todas aprovadas. Como a sessão era anônima, as capturas do Wokwi mostram a aba como `sketch.ino ●` (não salvo); o mesmo arquivo foi salvo depois no projeto (veja a nota mais abaixo).
 
 | Etapa | O que ficou comprovado | Captura |
 |---|---|---|
-| Boot e coleta offline | título do firmware; DS18B20 e MPU6050 encontrados; modo inicial OFFLINE; leituras #1 a #N sem pulos e `Pendentes = N`; sem alerta de "sem movimento" antes do primeiro movimento; LED apagado | [12](docs/evidencias/validacao-2026-11-04/12-wokwi-projeto-final-boot-e-coleta-offline.png) |
-| Alerta local offline | DS18B20 em 39 °C: `[ALERTA-LOCAL] ATIVO: febre`, LED aceso e buzzer ativo, sem nada chegar ao dashboard | [13](docs/evidencias/validacao-2026-11-04/13-wokwi-projeto-final-alerta-febre-led-offline.png) |
-| Sincronização | após `o`: Wi-Fi e broker conectados, publicações #1 em diante em ordem, sem pulo nem repetição, e `[SYNC] Fila de publicacoes pendentes esvaziada.` | [14](docs/evidencias/validacao-2026-11-04/14-wokwi-projeto-final-sincronizacao-mqtt.png) |
-| Dashboard recebe do Wokwi | gauge corporal em 39 °C, ambiente em 24 °C, `Alertas locais: Febre` e `ALERTA: Febre (temperatura corporal elevada)` | [17](docs/evidencias/validacao-2026-11-04/17-dashboard-febre-recebida-do-wokwi.png) |
-| BPM pelo botão | 14 cliques a cerca de 150 BPM registrados como pulsos; alerta local de BPM elevado junto com a febre; o BPM expira 4 s depois do último clique | [15](docs/evidencias/validacao-2026-11-04/15-wokwi-projeto-final-bpm-por-cliques-e-alerta.png) |
-| BPM no dashboard | gráfico de BPM com pontos e status com os alertas de BPM e de febre | [18](docs/evidencias/validacao-2026-11-04/18-dashboard-bpm-alerta-recebido-do-wokwi.png) |
-| Sem movimento | MPU6050 girado (`Movimento: ativo`) e devolvido ao repouso: após 15 s, `Movimento: parado` e alerta local de sem movimento | [16](docs/evidencias/validacao-2026-11-04/16-wokwi-projeto-final-sem-movimento.png) |
-| Sem movimento no dashboard | `SEM MOVIMENTO (parado além do tempo limite)` e status com o alerta de sem movimento | [19](docs/evidencias/validacao-2026-11-04/19-dashboard-sem-movimento-recebido-do-wokwi.png) |
-| Queda e retorno | `f` desabilita o envio e a coleta e os alertas locais continuam; `s` mostra o status completo | — |
+| Boot e coleta offline | circuito completo e coleta offline com a fila crescendo (`Pendentes: 6` na leitura #6), `Conexao: OFFLINE`, `Alertas locais: nenhum` e LED apagado. O banner de boot (DS18B20 e MPU6050 "encontrado", modo OFFLINE, nenhuma linha `[WIFI]` ou `[MQTT]`), os ids #1 a #6 sem pulos e a ausência de alerta de "sem movimento" antes do primeiro movimento foram conferidos no Serial pelo script, mas não aparecem neste print, que só mostra as últimas linhas | [12](docs/evidencias/validacao-2026-11-04/12-wokwi-projeto-final-boot-e-coleta-offline.png) |
+| Alerta local offline | DS18B20 em 39 °C: `Alertas locais: febre`, LED aceso e indicador de som no buzzer, com `Conexao: OFFLINE` (8 leituras pendentes). O script conferiu `[ALERTA-LOCAL] ATIVO: febre` e que nada chegou ao dashboard (banner ainda em `AGUARDANDO DADOS`) | [13](docs/evidencias/validacao-2026-11-04/13-wokwi-projeto-final-alerta-febre-led-offline.png) |
+| Sincronização | após `o`: Wi-Fi e broker conectados e as 9 leituras pendentes publicadas em ordem (#1 a #9, conferido no Serial), cada uma com o resumo do dado; o print mostra `[MQTT] Publicacao aceita: #10 \| amb 24.0 C \| corpo 39.0 C \| BPM indisponivel` e `[SYNC] Fila de publicacoes pendentes esvaziada.` | [14](docs/evidencias/validacao-2026-11-04/14-wokwi-projeto-final-sincronizacao-mqtt.png) |
+| Dashboard recebe do Wokwi | banner vermelho `ALERTA`, gauge corporal em 39 °C, ambiente em 24 °C, `Alertas locais: Febre`, `ALERTA: Febre (temperatura corporal elevada)` e o aviso clínico no rodapé | [17](docs/evidencias/validacao-2026-11-04/17-dashboard-febre-recebida-do-wokwi.png) |
+| BPM pelo botão | 14 cliques a cerca de 150 BPM registrados como pulsos (`[PULSO] Total: 14 \| BPM: 150.4`), `Alertas locais: BPM elevado \| febre` e a publicação já com o BPM (`BPM 148.9`). O BPM expirar 4 s depois do último clique não é mostrado neste print | [15](docs/evidencias/validacao-2026-11-04/15-wokwi-projeto-final-bpm-por-cliques-e-alerta.png) |
+| BPM no dashboard | banner `ALERTA` com `BPM simulado elevado \| Febre (temperatura corporal elevada)`, gráfico de BPM a cerca de 150 e alertas locais `BPM elevado \| Febre` | [18](docs/evidencias/validacao-2026-11-04/18-dashboard-bpm-alerta-recebido-do-wokwi.png) |
+| Sem movimento | MPU6050 girado (`Movimento: ativo`) e devolvido ao repouso: após 15,0 s simulados, `Movimento: parado` e `Alertas locais: febre \| sem movimento` (painel do MPU6050 em repouso no print) | [16](docs/evidencias/validacao-2026-11-04/16-wokwi-projeto-final-sem-movimento.png) |
+| Sem movimento no dashboard | `SEM MOVIMENTO (parado além do tempo limite)`, banner `ALERTA` com `Febre (temperatura corporal elevada) \| Sem movimento` | [19](docs/evidencias/validacao-2026-11-04/19-dashboard-sem-movimento-recebido-do-wokwi.png) |
+| Queda (`f`) e watchdog | `f` desabilita o envio; a coleta e os alertas locais continuam (leitura #31, `Pendentes: 6`, `Conexao: OFFLINE`, `febre \| sem movimento`) e 27 s depois o dashboard mostra o banner laranja `SEM DADOS` e `SEM DADOS: nenhuma leitura recebida há mais de 30 s …`, com os gauges ainda nos últimos valores | [22](docs/evidencias/validacao-2026-11-04/22-wokwi-coleta-offline-apos-f.png) e [21](docs/evidencias/validacao-2026-11-04/21-dashboard-sem-dados-watchdog-apos-f.png) |
+| Retorno (`o`) | as leituras do período offline (#26 a #31) saem em ordem e o banner sai de `SEM DADOS` na leitura seguinte (conferido pelo script) | — |
 
 ![Wokwi: alerta local de febre offline, com LED aceso](docs/evidencias/validacao-2026-11-04/13-wokwi-projeto-final-alerta-febre-led-offline.png)
 
@@ -218,9 +250,17 @@ Todas as leituras vêm do **ESP32 simulado no Wokwi**: este projeto não usa har
 
 ![Dashboard Node-RED com o alerta de sem movimento recebido do Wokwi](docs/evidencias/validacao-2026-11-04/19-dashboard-sem-movimento-recebido-do-wokwi.png)
 
-**Limites desta validação:** o buzzer foi verificado só pelo indicador visual de som do simulador (sem áudio); as 32 verificações foram feitas por um script de navegador que não está no repositório (o [roteiro](docs/roteiro_teste_wokwi.md) descreve os mesmos passos para execução manual); e ainda falta uma captura do editor do Node-RED com o fluxo carregado.
+![Dashboard Node-RED com o aviso SEM DADOS do watchdog depois do comando f](docs/evidencias/validacao-2026-11-04/21-dashboard-sem-dados-watchdog-apos-f.png)
 
-**Outras verificações:** 86 testes automatizados passaram ([09](docs/evidencias/validacao-2026-11-04/09-testes-automatizados-86-passaram.png)); o dashboard também processou uma mensagem sintética no formato do firmware ([07](docs/evidencias/validacao-2026-11-04/07-dashboard-baseline-node-red.png) e [08](docs/evidencias/validacao-2026-11-04/08-dashboard-mqtt-mensagem-sintetica.png); dado gerado pelo teste, não pelo Wokwi). Uma execução anterior, no projeto `cardioiaiot` (ID 479766849694291969), está nas capturas [01](docs/evidencias/validacao-2026-11-04/01-wokwi-circuito-serial-offline.png) e [05](docs/evidencias/validacao-2026-11-04/05-wokwi-serial-sincronizacao-mqtt.png), e a [06](docs/evidencias/validacao-2026-11-04/06-wokwi-simulacao-serial.png) registra a falha de build que o projeto do link tinha antes de receber o `sketch.ino`.
+**Editor do Node-RED (captura 20).** O fluxo `CardioIA Fase 3` carregado no editor, com o nó `mqtt in` **conectado** ao broker público (instância isolada do Node-RED 5.0.9, com o fluxo importado do repositório). A captura foi feita sem o Wokwi em execução: mostra como o dashboard foi montado, não dados recebidos.
+
+![Editor do Node-RED com o fluxo da Fase 3 e o nó MQTT conectado](docs/evidencias/validacao-2026-11-04/20-node-red-editor-fluxo-conectado.png)
+
+**Código do projeto do link = código do repositório.** A execução acima foi numa sessão anônima, que permite editar e rodar mas não salvar; depois o dono da conta salvou o mesmo `sketch.ino` no projeto. Conferido em 2026-11-04 (projeto atualizado às 22:34 UTC) baixando a página pública do Wokwi e comparando com `esp32/`: `sketch.ino` (844 linhas) e `diagram.json` idênticos; no `libraries.txt` só diferem as linhas de comentário do cabeçalho do Wokwi, com as mesmas quatro bibliotecas. Por isso as capturas 12 a 22, feitas com esse arquivo no editor, valem para o código do link.
+
+**Limites desta validação:** o buzzer foi verificado só pelo indicador visual de som do simulador (a nota musical desenhada no buzzer; sem áudio); as 38 verificações foram feitas por um script Playwright que não está no repositório (o [roteiro](docs/roteiro_teste_wokwi.md) descreve os mesmos passos para execução manual); a velocidade da simulação ficou entre 18 % e 43 % (indicador no canto de cada print); e ainda falta uma captura com os três alertas locais ao mesmo tempo.
+
+**Outras verificações:** 95 testes automatizados passaram ([09](docs/evidencias/validacao-2026-11-04/09-testes-automatizados-npm-test.png), saída real do `npm test`); o firmware compila no PlatformIO (ver "Compilar fora do Wokwi") com RAM 32,5 % e flash 77,9 %; o watchdog e o banner do dashboard foram exercitados num Node-RED real, com um broker local e mensagens sintéticas (dado gerado pelo teste, não pelo Wokwi; o script não está no repositório); o dashboard também processou uma mensagem sintética no formato do firmware ([07](docs/evidencias/validacao-2026-11-04/07-dashboard-baseline-node-red.png) e [08](docs/evidencias/validacao-2026-11-04/08-dashboard-mqtt-mensagem-sintetica.png); dado gerado pelo teste, não pelo Wokwi). Uma execução anterior, no projeto `cardioiaiot` (ID 479766849694291969), está nas capturas [01](docs/evidencias/validacao-2026-11-04/01-wokwi-circuito-serial-offline.png) e [05](docs/evidencias/validacao-2026-11-04/05-wokwi-serial-sincronizacao-mqtt.png), e a [06](docs/evidencias/validacao-2026-11-04/06-wokwi-simulacao-serial.png) registra a falha de build que o projeto do link tinha antes de receber o `sketch.ino`.
 
 O protocolo completo de validação está em [`docs/roteiro_teste_wokwi.md`](docs/roteiro_teste_wokwi.md).
 
@@ -243,6 +283,7 @@ fase3/
 │   ├── relatorio_edge.md   # relatório da Parte 1 (+ .pdf com as mesmas informações)
 │   ├── relatorio_mqtt.md   # relatório da Parte 2 (+ .pdf com as mesmas informações)
 │   ├── roteiro_teste_wokwi.md   # roteiro de teste manual no Wokwi
+│   ├── gerar_pdfs.py       # regenera os PDFs dos relatórios (pandoc + Edge/Chrome)
 │   └── evidencias/         # prints numerados
 └── README.md
 ```
@@ -265,6 +306,7 @@ No Wokwi não existe sensor de batimento cardíaco, por isso o botão faz o pape
 - **QoS 0:** `publish()` aceito significa que a biblioteca enviou a mensagem, não que o broker ou o Node-RED a receberam. Não há confirmação ponta a ponta.
 - **Broker público e sem criptografia:** adequado apenas a dados fictícios. Em produção seriam necessários TLS, autenticação e controle de acesso por tópico.
 - **Sem relógio real:** `timestamp_ms` é relativo ao boot. Leituras reenviadas após a reconexão aparecem no gráfico no horário de chegada, não no de coleta.
+- **Conexão bloqueante:** `mqtt.connect()` bloqueia o `loop()` enquanto tenta. O firmware limita a espera pelo broker a `TIMEOUT_MQTT_S` = 3 s (o padrão do PubSubClient é 15 s) e o TCP já tem 3 s de timeout no core, mas com o envio habilitado e o broker ou o DNS fora do ar cada tentativa ainda pode atrasar a coleta e fazer perder cliques por alguns segundos. Com o envio desabilitado (`f`) isso não ocorre.
 - **Limiares duplicados:** as mesmas regras existem no firmware e no Node-RED; mudar uma exige mudar a outra. O [contrato MQTT](docs/contrato_mqtt.md) diz onde cada regra mora e o `npm test` de `node_red/` acusa divergência entre firmware, fluxo e documentos.
 - **Sinais simulados:** o BPM vem de cliques manuais e a temperatura corporal e o movimento vêm de controles do simulador. O "sem movimento" só alerta depois do primeiro movimento e usa 15 s para demonstração. Nada aqui é uma medição clínica.
 - **Temperatura corporal por sensor único:** sem calibração, sem filtro de ruído e sem verificação de contato com a pele.
