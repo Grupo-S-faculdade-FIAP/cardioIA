@@ -132,6 +132,8 @@ export function lerFirmware() {
       LIMITE_BPM: numero('LIMITE_BPM'),
       LIMITE_FEBRE: numero('LIMITE_FEBRE'),
       TEMPO_SEM_MOVIMENTO_MS: numero('TEMPO_SEM_MOVIMENTO_MS'),
+      INTERVALO_COLETA: numero('INTERVALO_COLETA'),
+      TIMEOUT_MQTT_S: numero('TIMEOUT_MQTT_S'),
       ALERTA_BPM: numero('ALERTA_BPM'),
       ALERTA_FEBRE: numero('ALERTA_FEBRE'),
       ALERTA_SEM_MOVIMENTO: numero('ALERTA_SEM_MOVIMENTO'),

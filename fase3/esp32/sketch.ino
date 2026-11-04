@@ -375,6 +375,12 @@ unsigned long ultimaTentativaWiFi = 0;
 unsigned long ultimaTentativaMQTT = 0;
 const unsigned long INTERVALO_RECONEXAO = 5000;
 
+// Espera maxima (em segundos) pela resposta do broker em mqtt.connect().
+// Cada tentativa de conexao e bloqueante: com o padrao do PubSubClient (15 s),
+// uma queda do broker pararia o loop() por muito tempo (cliques perdidos e
+// coleta atrasada). O TCP ja tem timeout proprio de 3 s no core do ESP32.
+const uint16_t TIMEOUT_MQTT_S = 3;
+
 bool conexaoPronta() {
   return envioHabilitado && WiFi.status() == WL_CONNECTED && mqtt.connected();
 }
@@ -509,8 +515,25 @@ bool transmitirLeitura(const Leitura &leitura) {
     return false;
   }
 
+  // Mostra no Monitor Serial O QUE foi enviado (resumo da leitura), e nao so
+  // o id: e o "envio via Serial.println" que a Parte 1 do enunciado descreve.
   Serial.print("[MQTT] Publicacao aceita: #");
-  Serial.println(leitura.id);
+  Serial.print(leitura.id);
+  Serial.print(" | amb ");
+  Serial.print(leitura.temperatura, 1);
+  Serial.print(" C | corpo ");
+  if (leitura.tempCorporalValida) {
+    Serial.print(leitura.tempCorporal, 1);
+    Serial.print(" C");
+  } else {
+    Serial.print("indisponivel");
+  }
+  Serial.print(" | BPM ");
+  if (leitura.bpmValido) {
+    Serial.println(leitura.bpm, 1);
+  } else {
+    Serial.println("indisponivel");
+  }
   return true;
 }
 
@@ -766,6 +789,7 @@ void setup() {
   mpuPresente = iniciarMPU();
   mqtt.setServer(BROKER_MQTT, PORTA_MQTT);
   mqtt.setBufferSize(512);
+  mqtt.setSocketTimeout(TIMEOUT_MQTT_S);
 
   Serial.println("=================================");
   Serial.println("CardioIA - Fase 3: Edge + MQTT");

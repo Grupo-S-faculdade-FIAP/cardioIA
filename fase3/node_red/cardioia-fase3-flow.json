@@ -30,7 +30,8 @@
                 "72a67da70dba0696",
                 "d22ba85a4971637b",
                 "b942fdf12c3984f4",
-                "4720c24b193f9756"
+                "4720c24b193f9756",
+                "85940e9c8a71aedb"
             ]
         ]
     },
@@ -77,7 +78,7 @@
         "group": "2b960898fd00a362",
         "name": "CardioIA - Gráfico BPM",
         "label": "Frequência cardíaca (BPM)",
-        "order": 1,
+        "order": 2,
         "chartType": "line",
         "category": "topic",
         "categoryType": "msg",
@@ -159,7 +160,7 @@
         "z": "0862a29bc8751350",
         "name": "CardioIA - Temperatura",
         "group": "2b960898fd00a362",
-        "order": 3,
+        "order": 4,
         "value": "payload",
         "valueType": "msg",
         "width": 3,
@@ -240,7 +241,8 @@
         "y": 520,
         "wires": [
             [
-                "05e535dd15a49976"
+                "05e535dd15a49976",
+                "4b53cc6775210159"
             ]
         ]
     },
@@ -249,7 +251,7 @@
         "type": "ui-text",
         "z": "0862a29bc8751350",
         "group": "2b960898fd00a362",
-        "order": 6,
+        "order": 7,
         "width": 0,
         "height": 0,
         "name": "CardioIA - Alertas",
@@ -424,7 +426,7 @@
         "z": "0862a29bc8751350",
         "name": "CardioIA - Temp. Corporal",
         "group": "2b960898fd00a362",
-        "order": 2,
+        "order": 3,
         "value": "payload",
         "valueType": "msg",
         "width": 3,
@@ -503,7 +505,7 @@
         "type": "ui-text",
         "z": "0862a29bc8751350",
         "group": "2b960898fd00a362",
-        "order": 4,
+        "order": 5,
         "width": 0,
         "height": 0,
         "name": "CardioIA - Movimento",
@@ -547,7 +549,7 @@
         "type": "ui-text",
         "z": "0862a29bc8751350",
         "group": "2b960898fd00a362",
-        "order": 5,
+        "order": 6,
         "width": 0,
         "height": 0,
         "name": "CardioIA - Alertas locais",
@@ -565,5 +567,104 @@
         "x": 830,
         "y": 760,
         "wires": []
+    },
+    {
+        "id": "85940e9c8a71aedb",
+        "type": "switch",
+        "z": "0862a29bc8751350",
+        "name": "É leitura (objeto JSON)?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "istype",
+                "v": "object",
+                "vt": "object"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 530,
+        "y": 860,
+        "wires": [
+            [
+                "cfd104afa033d2db"
+            ]
+        ]
+    },
+    {
+        "id": "cfd104afa033d2db",
+        "type": "trigger",
+        "z": "0862a29bc8751350",
+        "name": "Watchdog: sem dados por 30 s",
+        "op1": "",
+        "op2": "SEM DADOS: nenhuma leitura recebida há mais de 30 s (os valores na tela podem estar desatualizados)",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "30",
+        "extend": true,
+        "overrideDelay": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 800,
+        "y": 860,
+        "wires": [
+            [
+                "05e535dd15a49976",
+                "4b53cc6775210159"
+            ]
+        ]
+    },
+    {
+        "id": "4b53cc6775210159",
+        "type": "ui-template",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "page": "",
+        "ui": "",
+        "name": "CardioIA - Banner de alerta",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<template>\n    <div class=\"cardioia-banner\" :class=\"nivel\" role=\"status\" aria-live=\"polite\">\n        <div class=\"cardioia-banner-titulo\">{{ titulo }}</div>\n        <div class=\"cardioia-banner-detalhe\">{{ detalhe }}</div>\n    </div>\n</template>\n\n<script>\n    // Estado visual do painel, a partir do texto do status: o no \"Verificar Alertas\"\n    // (ALERTA: ... ou \"Monitoramento sem alertas ativos\") e o watchdog (SEM DADOS: ...).\n    export default {\n        computed: {\n            texto: function () {\n                return (this.msg && typeof this.msg.payload === 'string') ? this.msg.payload : ''\n            },\n            nivel: function () {\n                if (this.texto.indexOf('SEM DADOS') === 0) { return 'cardioia-semdados' }\n                if (this.texto.indexOf('ALERTA') === 0) { return 'cardioia-alerta' }\n                if (this.texto !== '') { return 'cardioia-ok' }\n                return 'cardioia-aguardando'\n            },\n            titulo: function () {\n                const titulos = {\n                    'cardioia-alerta': 'ALERTA',\n                    'cardioia-semdados': 'SEM DADOS',\n                    'cardioia-ok': 'SEM ALERTAS',\n                    'cardioia-aguardando': 'AGUARDANDO DADOS'\n                }\n                return titulos[this.nivel]\n            },\n            detalhe: function () {\n                if (this.nivel === 'cardioia-alerta') { return this.texto.replace('ALERTA: ', '') }\n                if (this.nivel === 'cardioia-semdados') { return this.texto.replace('SEM DADOS: ', '') }\n                if (this.nivel === 'cardioia-ok') { return 'Nenhuma regra de alerta violada na última leitura' }\n                return 'O dispositivo ainda não enviou leituras'\n            }\n        }\n    }\n</script>\n\n<style>\n    .cardioia-banner { padding: 10px 14px; border-left: 8px solid; border-radius: 6px; width: 100%; }\n    .cardioia-banner-titulo { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }\n    .cardioia-banner-detalhe { font-size: 14px; margin-top: 2px; }\n    .cardioia-alerta { background: #fdecea; border-color: #d32f2f; color: #8c1c13; }\n    .cardioia-semdados { background: #fff4e0; border-color: #f29900; color: #7a4100; }\n    .cardioia-ok { background: #e8f5e9; border-color: #2e9e4f; color: #1b5e20; }\n    .cardioia-aguardando { background: #eceff1; border-color: #90a4ae; color: #37474f; }\n</style>\n",
+        "storeOutMessages": true,
+        "passthru": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1100,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e2444accd70295f2",
+        "type": "ui-template",
+        "z": "0862a29bc8751350",
+        "group": "2b960898fd00a362",
+        "page": "",
+        "ui": "",
+        "name": "CardioIA - Aviso clínico",
+        "order": 8,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<template>\n    <div class=\"cardioia-aviso\" role=\"note\">\n        <strong>⚠️ AVISO CLÍNICO:</strong> Este sistema é um protótipo acadêmico e <strong>NÃO</strong> substitui avaliação médica.\n        Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944). Dados 100% simulados.\n    </div>\n</template>\n\n<style>\n    .cardioia-aviso { font-size: 12px; line-height: 1.35; padding: 8px 12px; border-left: 4px solid #bf382a; background: #fdf2f1; color: #3a1a17; border-radius: 4px; width: 100%; }\n</style>\n",
+        "storeOutMessages": true,
+        "passthru": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1100,
+        "y": 620,
+        "wires": [
+            []
+        ]
     }
 ]

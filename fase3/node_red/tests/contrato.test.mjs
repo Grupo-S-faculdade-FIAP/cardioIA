@@ -96,7 +96,8 @@ describe('Integridade do fluxo exportado', () => {
   it('o fluxo não guarda usuário, senha nem token', () => {
     const suspeitos = fluxo.flatMap((n) =>
       Object.keys(n)
-        .filter((k) => /pass|secret|token|api_?key|credential/i.test(k))
+        // "passthru" é opção do nó ui-template (repassar a mensagem adiante), não credencial.
+        .filter((k) => k !== 'passthru' && /pass|secret|token|api_?key|credential/i.test(k))
         .map((k) => `${n.name ?? n.id}.${k}`));
     assert.deepEqual(suspeitos, []);
   });
@@ -177,6 +178,98 @@ describe('Firmware × fluxo Node-RED', () => {
     assert.ok(enumDoAlerta, 'não achei o estado de movimento que dispara ALERTA_SEM_MOVIMENTO no firmware');
     assert.ok(estadoNoFluxo, 'não achei o estado de movimento que o fluxo trata como "sem movimento"');
     assert.equal(nomeDoEnum[enumDoAlerta], estadoNoFluxo);
+  });
+});
+
+// ------------------------------------------------------------------------------------------
+
+describe('Firmware: conexão MQTT e resumo do dado enviado no Serial', () => {
+  it('limita a espera de mqtt.connect() (setSocketTimeout), bem abaixo do padrão de 15 s do PubSubClient', () => {
+    assert.match(firmware.fonte, /mqtt\.setSocketTimeout\(\s*TIMEOUT_MQTT_S\s*\)/, 'setup() deixou de chamar mqtt.setSocketTimeout(TIMEOUT_MQTT_S)');
+    const s = firmware.constantes.TIMEOUT_MQTT_S;
+    assert.ok(s >= 1 && s <= 5, `TIMEOUT_MQTT_S = ${s} s: use de 1 a 5 s`);
+  });
+
+  it('mostra no Serial o resumo do dado enviado (id, ambiente, corpo e BPM), e não só o id', () => {
+    const inicio = firmware.fonte.indexOf('bool transmitirLeitura(const Leitura &leitura) {');
+    const fim = firmware.fonte.indexOf('// SINCRONIZACAO DA FILA');
+    assert.ok(inicio >= 0 && fim > inicio, 'não achei transmitirLeitura() no firmware');
+    assert.match(
+      firmware.fonte.slice(inicio, fim),
+      // \b: "leitura.bpm" não pode ser confundido com "leitura.bpmValido" (nem tempCorporal com tempCorporalValida).
+      /Publicacao aceita[\s\S]*leitura\.id\b[\s\S]*leitura\.temperatura\b[\s\S]*leitura\.tempCorporal\b[\s\S]*leitura\.bpm\b/,
+    );
+  });
+});
+
+// ------------------------------------------------------------------------------------------
+
+describe('Dashboard: watchdog "sem dados", banner de alerta e aviso clínico', () => {
+  const mqttIn = fluxo.find((n) => n.type === 'mqtt in');
+  const triggers = fluxo.filter((n) => n.type === 'trigger');
+  const statusTexto = noPorNome(fluxo, 'CardioIA - Alertas');
+  const banner = noPorNome(fluxo, 'CardioIA - Banner de alerta');
+  const aviso = noPorNome(fluxo, 'CardioIA - Aviso clínico');
+  const secao = Object.fromEntries(lerTabela(docs.contrato, 'Sem dados').map((l) => [l.Item, l.Valor]));
+  const SEGUNDOS_POR_UNIDADE = { ms: 0.001, s: 1, min: 60, hr: 3600 };
+
+  it('há um único watchdog (nó trigger), alimentado só por objetos JSON vindos do mqtt in', () => {
+    assert.equal(triggers.length, 1, 'esperava exatamente 1 nó trigger no fluxo');
+    const entradas = quemAlimenta(triggers[0].id);
+    assert.equal(entradas.length, 1, 'o watchdog deve ter uma única entrada: o filtro de objetos JSON');
+    const [filtro] = entradas;
+    assert.equal(filtro.type, 'switch');
+    assert.ok(quemAlimenta(filtro.id).some((n) => n.id === mqttIn.id), 'o filtro não recebe do mqtt in');
+    assert.equal(filtro.property, 'payload');
+    assert.deepEqual(filtro.rules.map((r) => [r.t, r.v]), [['istype', 'object']]);
+  });
+
+  it('cada leitura reinicia o prazo e o watchdog só emite quando o prazo vence', () => {
+    const [wd] = triggers;
+    assert.ok(wd.extend === true || wd.extend === 'true', 'extend desligado: o prazo não reinicia a cada leitura');
+    assert.equal(wd.op1type, 'nul', 'o watchdog não deve emitir nada a cada leitura');
+    assert.equal(wd.op2type, 'str');
+  });
+
+  it('o prazo e o texto do watchdog são os do contrato, e o prazo é muito maior que o intervalo de coleta', () => {
+    const [wd] = triggers;
+    const prazoS = Number(wd.duration) * SEGUNDOS_POR_UNIDADE[wd.units];
+    assert.equal(prazoS, Number(secao['Prazo sem leituras (segundos)']), 'prazo × contrato');
+    assert.equal(wd.op2, secao['Texto no dashboard'], 'texto × contrato');
+    const coletaMs = firmware.constantes.INTERVALO_COLETA;
+    assert.ok(prazoS * 1000 >= 5 * coletaMs, `prazo de ${prazoS} s é curto para uma coleta a cada ${coletaMs} ms: alarme falso`);
+  });
+
+  it('o watchdog escreve no status e no banner, e os dois reconhecem o prefixo "SEM DADOS"', () => {
+    const [wd] = triggers;
+    const saidas = wd.wires.flat();
+    assert.ok(saidas.includes(statusTexto.id), 'o watchdog não escreve no texto de status');
+    assert.ok(saidas.includes(banner.id), 'o watchdog não escreve no banner');
+    assert.ok(wd.op2.startsWith('SEM DADOS'));
+    assert.match(banner.format, /indexOf\('SEM DADOS'\)/, 'o banner não reconhece "SEM DADOS"');
+  });
+
+  it('o banner recebe o status do "Verificar Alertas" e reconhece o prefixo "ALERTA" que ele produz', async () => {
+    const verificar = noPorNome(fluxo, 'Verificar Alertas');
+    assert.ok(verificar.wires.flat().includes(banner.id), '"Verificar Alertas" não alimenta o banner');
+    assert.match(banner.format, /indexOf\('ALERTA'\)/, 'o banner não reconhece "ALERTA"');
+    assert.ok((await verificarAlertas({ bpm: 130, bpm_valido: true })).startsWith('ALERTA'));
+  });
+
+  it('o dashboard exibe o aviso clínico obrigatório (CLAUDE.md §3)', () => {
+    const esperado =
+      'AVISO CLÍNICO: Este sistema é um protótipo acadêmico e NÃO substitui avaliação médica. ' +
+      'Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).';
+    const texto = aviso.format.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    assert.ok(texto.includes(esperado), 'o template do aviso não traz o texto obrigatório');
+  });
+
+  it('banner e aviso são templates locais do mesmo grupo dos demais widgets', () => {
+    for (const t of [banner, aviso]) {
+      assert.equal(porId.get(t.group)?.type, 'ui-group', `${t.name}: grupo inexistente`);
+      assert.equal(t.templateScope, 'local', `${t.name}: escopo do template`);
+      assert.equal(t.group, statusTexto.group, `${t.name}: fora do grupo dos demais widgets`);
+    }
   });
 });
 

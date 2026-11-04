@@ -66,7 +66,7 @@ Alternativa sem o editor: com o Node-RED parado, copie `cardioia-fase3-flow.json
 
 ## O que o fluxo faz
 
-Um nó `mqtt in` recebe cada mensagem e a entrega a seis funções independentes, cada uma ligada a um widget:
+Um nó `mqtt in` recebe cada mensagem e a entrega a seis funções independentes, cada uma ligada a um widget, e a um watchdog de "sem dados":
 
 | Nó | Campos que lê | Widget no dashboard |
 |---|---|---|
@@ -77,13 +77,15 @@ Um nó `mqtt in` recebe cada mensagem e a entrega a seis funções independentes
 | Processar Alertas Locais | `alertas_locais` | texto "Alertas locais do dispositivo (Edge)" |
 | Verificar Alertas | `bpm`, `bpm_valido`, `temp_corporal`, `temp_corporal_valida`, `movimento`, `temperatura` | texto "Status do monitoramento" |
 
-Mensagens que não são um objeto JSON são descartadas sem erro. As regras de alerta e seus limites estão no [contrato](../docs/contrato_mqtt.md#limiares-e-regras-de-alerta).
+Além das funções, o fluxo tem o **watchdog de "sem dados"** (um `switch` que só deixa passar objetos JSON e um `trigger` de 30 s que reinicia a cada leitura e, ao vencer, escreve `SEM DADOS: …` no status e no banner), o **banner de alerta** (`ui-template` no topo do painel: vermelho `ALERTA`, laranja `SEM DADOS`, verde `SEM ALERTAS`, cinza `AGUARDANDO DADOS`) e o **aviso clínico** (`ui-template` no rodapé). O prazo do watchdog e o texto dele estão no [contrato](../docs/contrato_mqtt.md#sem-dados-watchdog-do-dashboard).
+
+Mensagens que não são um objeto JSON são descartadas sem erro e não reiniciam o watchdog. As regras de alerta e seus limites estão no [contrato](../docs/contrato_mqtt.md#limiares-e-regras-de-alerta).
 
 ## Testes
 
 | Comando | O que confere | Requisitos |
 |---|---|---|
-| `npm test` | regras de cada nó + contrato (firmware × fluxo × documentos) | só Node.js 20+; não instala nada; roda em segundos |
+| `npm test` | regras de cada nó + contrato (firmware × fluxo × documentos) + watchdog, banner e aviso clínico do dashboard | só Node.js 20+; não instala nada; roda em segundos |
 
 Execute `npm test` dentro de `fase3/node_red`. A integração real Wokwi → broker → Node-RED não tem teste automatizado neste repositório; siga o [roteiro manual](../docs/roteiro_teste_wokwi.md) e registre as evidências da versão atual.
 
@@ -92,7 +94,7 @@ Execute `npm test` dentro de `fase3/node_red`. A integração real Wokwi → bro
 1. Edite no editor do Node-RED e clique em **Deploy**.
 2. Menu ☰ → **Export** → **all flows** → baixe o JSON e salve **por cima** de `cardioia-fase3-flow.json`. O `flows.json` da sua pasta de usuário é só uma cópia; o repositório é a fonte da verdade.
 3. Rode `npm test`. Se mudou campo, tópico ou limiar, atualize antes o [contrato](../docs/contrato_mqtt.md), o firmware (e o projeto no Wokwi), o [README da Fase 3](../README.md) e os relatórios; o teste aponta o que ficou para trás.
-4. Se o fluxo ou o contrato mudaram, regenere os PDFs dos relatórios e refaça as evidências afetadas.
+4. Se o fluxo ou o contrato mudaram, regenere os PDFs dos relatórios (`python fase3/docs/gerar_pdfs.py`) e refaça as evidências afetadas.
 
 ## Por que esta pasta fica no mesmo repositório
 
@@ -102,7 +104,7 @@ Execute `npm test` dentro de `fase3/node_red`. A integração real Wokwi → bro
 
 ## Limitações conhecidas
 
-- O dashboard mostra a **última** mensagem recebida: se o ESP32 ficar offline, os valores antigos continuam na tela. Não há alerta de "sem dados".
+- O dashboard mostra a **última** mensagem recebida: se o ESP32 ficar offline, o watchdog avisa `SEM DADOS` no status e no banner depois de 30 s, mas os gauges, o gráfico e os textos de movimento e de alertas locais continuam com os últimos valores. Numa simulação muito lenta do Wokwi o aviso pode aparecer sem falha do firmware.
 - O gráfico plota cada leitura no horário em que ela **chegou**, não no da coleta (o `timestamp_ms` é relativo ao boot do ESP32). Leituras reenviadas após uma reconexão aparecem juntas.
 - QoS 0: sem confirmação de entrega ponta a ponta.
 - Os limiares são regras demonstrativas, não critérios de diagnóstico.

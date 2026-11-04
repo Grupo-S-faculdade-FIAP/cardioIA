@@ -106,10 +106,24 @@ Onde cada regra mora:
 
 No dashboard, alertas simultâneos aparecem na ordem da tabela, separados por ` | ` e precedidos de `ALERTA: `. Sem nenhum, o texto é `Monitoramento sem alertas ativos`.
 
+## Sem dados (watchdog do dashboard)
+
+Se o ESP32 parar de enviar (rede fora do ar, dispositivo desligado ou envio desabilitado com `f`), o dashboard não pode seguir mostrando o último estado como se fosse atual. O Node-RED reinicia um temporizador a cada leitura recebida; se ele vencer, o texto de status e o banner de alerta passam a avisar "sem dados". Na próxima leitura, o status volta ao normal.
+
+| Item | Valor |
+|---|---|
+| Prazo sem leituras (segundos) | 30 |
+| Texto no dashboard | SEM DADOS: nenhuma leitura recebida há mais de 30 s (os valores na tela podem estar desatualizados) |
+| Onde o Node-RED aplica | nós "É leitura (objeto JSON)?" (filtro) e "Watchdog: sem dados por 30 s" (trigger) |
+| Conta como leitura | qualquer mensagem do tópico cujo conteúdo seja um objeto JSON |
+| Não conta | texto solto, número ou JSON quebrado |
+
+Só o Node-RED aplica esta regra: o firmware não a conhece. O prazo é bem maior que a coleta a cada 2 s (os testes exigem pelo menos 5 vezes `INTERVALO_COLETA`), mas numa simulação muito lenta do Wokwi (poucos por cento da velocidade real) 2 s simulados podem levar mais de 30 s reais e o aviso aparecer sem que nada tenha falhado.
+
 ## Compatibilidade
 
 - **Campos desconhecidos:** o consumidor os ignora, então acrescentar um campo ao final não quebra o dashboard.
-- **Mensagem que não é um objeto JSON** (texto solto, número, JSON quebrado): descartada sem erro e sem alterar o dashboard.
+- **Mensagem que não é um objeto JSON** (texto solto, número, JSON quebrado): descartada sem erro, sem alterar o dashboard e sem reiniciar o watchdog de "sem dados".
 - **Formato antigo** (somente `temperatura`, `umidade`, `bpm` e `bpm_valido`): continua sendo processado; os campos novos ausentes não geram alerta nem erro.
 
 ## Como alterar o contrato
@@ -118,7 +132,7 @@ No dashboard, alertas simultâneos aparecem na ordem da tabela, separados por ` 
 2. Rode `npm test` em `fase3/node_red` e corrija o que os testes apontarem.
 3. Atualize o exemplo de payload e as tabelas de [`README.md`](../README.md) e dos relatórios ([`relatorio_edge.md`](relatorio_edge.md), [`relatorio_mqtt.md`](relatorio_mqtt.md)).
 4. Siga o teste integrado manual em [`roteiro_teste_wokwi.md`](roteiro_teste_wokwi.md) e refaça as evidências afetadas.
-5. Regenere os PDFs dos relatórios.
+5. Regenere os PDFs dos relatórios (`python fase3/docs/gerar_pdfs.py`).
 
 ## O que os testes conferem
 
@@ -129,6 +143,8 @@ No dashboard, alertas simultâneos aparecem na ordem da tabela, separados por ` 
 | Campos que cada nó lê: código do fluxo × coluna "Nós do Node-RED que usam" | `contrato.test.mjs` |
 | Máscara de bits, estados de movimento e limiares: firmware × fluxo × tabelas, inclusive o comportamento nos valores-limite | `contrato.test.mjs` |
 | Regras de cada nó (limites exatos, leituras inválidas, formato antigo, máscara) e concordância entre as regras do Edge e do Fog | `funcoes.test.mjs` |
+| Watchdog de "sem dados" (prazo, texto e ligações × tabela acima e `INTERVALO_COLETA`), banner de alerta e aviso clínico no dashboard | `contrato.test.mjs` |
+| Robustez do firmware: `setSocketTimeout` no `mqtt.connect()` e resumo do dado enviado no Serial | `contrato.test.mjs` |
 | Integridade do fluxo (ids, fios, referências), ausência de credenciais e texto de alerta sem corte | `contrato.test.mjs` |
 
 O teste integrado Wokwi → broker → Node-RED é manual e está descrito em [`roteiro_teste_wokwi.md`](roteiro_teste_wokwi.md); ainda não há teste automatizado ponta a ponta.
