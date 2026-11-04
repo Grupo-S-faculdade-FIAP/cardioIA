@@ -24,5 +24,5 @@ Distribuição dos classificadores da Camada 3:
   Sindrome_Metabolica_Parcial: {'Nao': np.int64(6339), 'Sim': np.int64(1866), nan: np.int64(747)}
   Categoria_KDIGO_G: {'G1': np.int64(5530), 'G2': np.int64(2548), nan: np.int64(417), 'G3a': np.int64(337), 'G3b': np.int64(87), 'G5': np.int64(17), 'G4': np.int64(16)}
 
-8952 linhas salvas em C:\Users\caroo\OneDrive\Desktop\FIAP\projetos\cardioIA\data\processed\pns_ckm_estagios_2013.csv
+8952 linhas salvas em data/processed/pns_ckm_estagios_2013.csv
 ```

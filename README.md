@@ -10,8 +10,8 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 | Fase | Tema | Onde está | Destaques |
 |---|---|---|---|
 | **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
-| **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
-| **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/477362937220720641) | Fila circular de 1.800 leituras com sincronização após reconexão; gráfico de BPM, gauge de temperatura e alertas automáticos (dados 100% simulados) |
+| **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · [`RELATORIO-FASE2.md`](RELATORIO-FASE2.md) · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
+| **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/479773169716093953) | 4 fontes de dados (DHT22, DS18B20, MPU6050 e botão de BPM); alerta local com LED/buzzer mesmo offline; fila circular de 1.800 leituras com sincronização após reconexão; dashboard com gráfico de BPM, gauges, movimento e alertas (dados 100% simulados) |
 
 ## Integrantes
 
@@ -133,14 +133,15 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 │   └── calcular_prevent.R                      # Estágio 3 via escore PREVENT (pacote CVrisk, só em R)
 ├── fase2/                                      # FASE 2 — NLP, classificador de risco e vieses (ver fase2/README.md)
 ├── fase3/                                      # FASE 3 — IoT: ESP32 (Edge), MQTT e dashboard Node-RED (ver fase3/README.md)
-│   ├── esp32/                                  # sketch.ino, diagram.json, libraries.txt (projeto Wokwi)
-│   ├── node_red/                               # fluxo exportado do dashboard (cardioia-fase3-flow.json)
-│   └── docs/                                   # relatorio_edge.md, relatorio_mqtt.md e evidencias/ (prints)
+│   ├── esp32/                                  # sketch.ino, diagram.json, libraries.txt (projeto Wokwi) e wifi_config.example.h (modelo)
+│   ├── node_red/                               # fluxo do dashboard, README, testes (npm test) e package.json
+│   └── docs/                                   # contrato_mqtt.md, relatórios (md e pdf), roteiro de teste e evidencias/ (prints)
 ├── tests/
 │   ├── validar_extracao_pns.py                 # compara bruto (Excel) x tratado (CSV) linha a linha
 │   └── validar_ckm_stage.py                    # prova que CKM_Stage é consequência lógica fiel dos classificadores
 ├── notebooks/
-│   └── exploracao_pns.R                        # análise exploratória inicial (R)
+│   ├── exploracao_pns.R                        # análise exploratória inicial (R)
+│   └── exploracao_ckm_stage.R                  # plausibilidade clínica do CKM_Stage (R)
 ├── docs/
 │   └── eda-pns-2013-achados.md                 # achados da EDA: valores ausentes, outliers, casos investigados
 ├── .spec/
@@ -158,9 +159,10 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 │       ├── _manifest.json                      # arquivo, classe, tamanho e hash SHA-256 de cada imagem
 │       └── LINHAGEM.md                         # fonte, licença, método de amostragem, reprodutibilidade
 ├── .github/workflows/ci-fase2.yml              # CI da Fase 2: harness + notebooks
-├── .claude/                                    # hook e skills de engenharia de ML (Claude Code)
+├── .claude/                                    # hook, skills e agentes de revisão clínica (Claude Code)
 ├── CLAUDE.md                                   # regras do projeto (dados sintéticos, seed, aviso clínico...)
 ├── RELATORIO-FASE1.md                          # relatório técnico consolidando o projeto inteiro
+├── RELATORIO-FASE2.md                          # relatório técnico da Fase 2 (NLP, classificador e vieses)
 ├── requirements.txt
 ├── .gitignore
 └── README.md

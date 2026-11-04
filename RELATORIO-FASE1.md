@@ -85,7 +85,7 @@ A primeira versão do projeto usava o NHANES (CDC/EUA). Essa escolha tinha uma l
 
 ## 5. Parte 2 — Dados Textuais
 
-Três artigos científicos, em `assets/documentos_cientificos/`, cada um com um recorte `.txt` (citação, licença e data de extração no cabeçalho) e o **PDF original com destaque amarelo** exatamente nos trechos usados no recorte — gerados por [`src/destacar_documentos_cientificos.py`](src/destacar_documentos_cientificos.py):
+Três artigos científicos, em `assets/documentos_cientificos/`, cada um com um recorte `.txt` (citação, licença e data de extração no cabeçalho) e o **PDF original com destaque amarelo** exatamente nos trechos usados no recorte — gerados por um script que foi removido do repositório depois da entrega (os PDFs destacados continuam versionados):
 
 | Documento | Fonte | Licença |
 |---|---|---|
@@ -175,7 +175,7 @@ Ver [`README.md`](README.md) para a árvore completa e atualizada. Resumo por fu
 1. Decidir a estratégia de imputação/tratamento de ausência (Grupos C/D da EDA) para a fase de modelagem.
 2. Avaliar se o escore PREVENT deve ganhar uma segunda validação (comparação com literatura brasileira de risco cardiovascular, se disponível).
 3. Treinar um classificador supervisionado (ML) usando `CKM_Stage`/os desfechos autorreferidos como rótulo — ainda não iniciado nesta fase; requer decisão explícita sobre algoritmo (árvore vs. modelo sensível a escala) e tratamento do desbalanceamento das classes-alvo (ex.: `AVC` tem ~1,9% de prevalência na amostra).
-4. Subir os 3 datasets (numérico, textual, visual) para um link público (Drive/OneDrive), conforme exigido para a entrega — pendente de conta pessoal do responsável pelo projeto.
+4. ~~Subir os 3 datasets (numérico, textual, visual) para um link público~~ — **concluído**: os três estão publicados no repositório público do GitHub (links no `README.md`).
 
 ## 12. Histórico de revisões
 

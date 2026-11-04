@@ -219,7 +219,7 @@ As regras têm **precisão perfeita** mas recall muito baixo: quando acertam, ac
 
 ### 6.1 Comportamento do classificador ML por tipo de frase
 
-Resultado do `avaliacao.py` em `cases_comportamento.csv` (15 casos, 3 por tipo):
+Resultado do `avaliacao.py` em `casos_comportamento.csv` (15 casos, 3 por tipo):
 
 | Tipo | Acertos | Total | Taxa |
 |---|---:|---:|---:|

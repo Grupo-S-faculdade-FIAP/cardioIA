@@ -25,7 +25,7 @@ Bateu exatamente com os números do log de linhagem do Python (ex.: `Infarto_Mio
 **Correção — sempre ler este CSV assim:**
 ```r
 dados_br <- read.csv(
-  "C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA/data/processed/pns_ckm_rce_2013.csv",
+  "data/processed/pns_ckm_rce_2013.csv",
   na.strings = c("NA", "")
 )
 ```

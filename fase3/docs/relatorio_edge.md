@@ -16,16 +16,24 @@ O principal objetivo desta etapa é demonstrar o conceito de **Edge Computing**,
 
 ### 2. Componentes e tecnologias
 
-O protótipo utiliza um ESP32, um sensor DHT22 e um botão de pressão (pushbutton).
+O protótipo utiliza um ESP32 e quatro fontes de dados, além de dois atuadores de alerta:
 
-O DHT22 realiza leituras simuladas de temperatura e umidade relativa do ambiente. O pushbutton representa um simulador manual de pulsos cardíacos, permitindo calcular uma estimativa de batimentos por minuto (BPM) a partir do intervalo entre acionamentos sucessivos.
+- **DHT22:** leituras simuladas de temperatura e umidade relativa **do ambiente** (conta como um sensor, conforme o enunciado).
+- **DS18B20:** temperatura **corporal** simulada, como se o sensor estivesse em contato com a pele. É ela que sustenta o alerta de febre, já que a temperatura ambiental não diz nada sobre febre.
+- **MPU6050:** acelerômetro e giroscópio, usados para detectar movimento e a ausência dele.
+- **Pushbutton:** simulador manual de pulsos cardíacos, que permite calcular uma estimativa de batimentos por minuto (BPM) a partir do intervalo entre acionamentos sucessivos.
+- **LED e buzzer:** alerta local no próprio dispositivo.
 
-O circuito foi desenvolvido na plataforma Wokwi e programado em C++, utilizando o ambiente Arduino e a biblioteca DHTesp. O mesmo firmware foi estendido na Parte 2 com Wi-Fi e MQTT (biblioteca PubSubClient); este relatório descreve a camada Edge, e a comunicação com a nuvem está em [`relatorio_mqtt.md`](relatorio_mqtt.md).
+O circuito foi desenvolvido na plataforma Wokwi e programado em C++, utilizando o ambiente Arduino e as bibliotecas DHTesp, OneWire e DallasTemperature. O mesmo firmware foi estendido na Parte 2 com Wi-Fi e MQTT (biblioteca PubSubClient); este relatório descreve a camada Edge, e a comunicação com a nuvem está em [`relatorio_mqtt.md`](relatorio_mqtt.md).
 
 **Conexões utilizadas:**
 
 - DHT22: alimentação de 3,3 V, sinal de dados conectado ao GPIO 15 e aterramento GND.
+- DS18B20: alimentação de 3,3 V, dados (DQ) no GPIO 4 com resistor de pull-up de 4,7 kΩ até 3,3 V, e GND.
+- MPU6050: barramento I2C (endereço 0x68) com SDA no GPIO 21 e SCL no GPIO 22, alimentação de 3,3 V e GND.
 - Pushbutton: conectado ao GPIO 18 e ao GND, com configuração `INPUT_PULLUP`.
+- LED vermelho: GPIO 26 por um resistor de 220 Ω, com o outro terminal em GND.
+- Buzzer: GPIO 27 no terminal positivo e GND no negativo.
 
 ### 3. Funcionamento do monitoramento
 
@@ -43,17 +51,33 @@ A implementação também possui uma rotina de *debounce* para reduzir múltipla
 
 Quando não existe uma estimativa válida, o programa identifica o BPM como indisponível, evitando interpretá-lo como medição fisiológica real.
 
+**Temperatura corporal.** A conversão do DS18B20 leva até 750 ms; esperar por ela travaria a leitura do botão e distorceria o cálculo do BPM. Por isso o firmware pede a conversão, segue o `loop()` e lê o resultado cerca de 0,8 s depois, repetindo o ciclo. Leituras fora da faixa do sensor (por exemplo, o valor -127 de sensor desconectado) são marcadas como inválidas.
+
+**Movimento.** O MPU6050 é lido a cada 100 ms. Considera-se que há movimento quando a aceleração varia mais de 0,05 g entre duas amostras ou quando o giro passa de 10 °/s; um valor constante (parado, mesmo inclinado) não conta. O estado resultante é `aguardando` (ainda sem movimento desde a inicialização), `ativo`, `parado` (15 s sem movimento depois de já ter havido algum) ou `indisponivel` (o sensor não responde). O alerta de "sem movimento" só vale depois do primeiro movimento, para que um dispositivo ainda guardado, em repouso, não alerte; os 15 s são um valor de demonstração (em uso real seriam minutos).
+
+### 3.1 Alertas locais (Edge)
+
+O firmware avalia os limiares **no próprio ESP32**, a cada passagem do `loop()`, sem depender de Wi-Fi, do broker ou do dashboard:
+
+| Condição | Resposta local |
+|---|---|
+| BPM válido acima de 120 | LED aceso e buzzer (bipe de 150 ms por segundo) |
+| Temperatura corporal acima de 38 °C | LED aceso e buzzer |
+| Parado por 15 s depois de já ter havido movimento | LED aceso, sem buzzer |
+
+Esse é o ponto central do conceito de Edge Computing neste projeto: em um monitor cardíaco, o aviso mais importante precisa funcionar justamente quando a rede cai. O alerta também é registrado em cada leitura (campo `alertas_locais`, uma máscara de bits), de modo que o dashboard exibe o que o dispositivo decidiu. Os limiares são regras demonstrativas, não critérios de diagnóstico. No boot há um autoteste de 200 ms do LED e do buzzer.
+
 ### 4. Estratégia de resiliência offline
 
 Para simular interrupções de conectividade, o programa utiliza uma variável booleana. Na versão inicial (somente Serial) ela se chamava `wifiConectado`; no firmware atual, que também faz a conexão real ao Wi-Fi do Wokwi e ao broker, o mesmo papel é exercido por `envioHabilitado`, alternada pelos comandos `f` e `o` do Monitor Serial. O dispositivo **inicia offline** para evidenciar a resiliência.
 
-Quando seu valor é `false`, o sistema entra em modo offline. Nesse estado, a coleta dos sensores continua normalmente, mas as leituras não são transmitidas.
+Quando seu valor é `false`, o sistema entra em modo offline. Nesse estado, a coleta dos sensores e os alertas locais continuam normalmente, mas as leituras não são transmitidas.
 
 Os registros são armazenados temporariamente em uma **fila circular em memória RAM**, com capacidade fixa de 1.800 leituras.
 
 Considerando um intervalo aproximado de dois segundos por coleta, essa capacidade corresponde a cerca de uma hora de dados acumulados.
 
-Cada registro contém um identificador sequencial, o tempo decorrido desde o início da execução, temperatura, umidade, BPM estimado e um indicador de validade do BPM.
+Cada registro contém um identificador sequencial, o tempo decorrido desde o início da execução, temperatura e umidade ambientais, temperatura corporal, BPM estimado, o módulo da aceleração, o estado de movimento, a máscara de alertas locais e indicadores de validade do BPM e da temperatura corporal.
 
 Quando a fila atinge sua capacidade máxima, a leitura mais antiga é descartada para permitir a entrada de uma nova leitura. O sistema também contabiliza o número de descartes, possibilitando identificar perdas durante períodos prolongados sem conexão.
 
@@ -71,7 +95,7 @@ Na versão inicial (Parte 1), a transmissão era representada por mensagens JSON
 
 A remoção de um registro da fila ocorre somente após a função de transmissão retornar sucesso, isto é, após `mqtt.publish()` aceitar a mensagem. Como a publicação usa QoS 0, esse sucesso indica apenas que a biblioteca enviou a mensagem, e não que o broker a recebeu; esse limite é discutido em [`relatorio_mqtt.md`](relatorio_mqtt.md).
 
-**Dimensionamento da fila.** Cada registro ocupa 24 bytes (dois `unsigned long`, três `float` e um `bool`, com alinhamento), então 1.800 registros usam cerca de 42 KB de RAM. Na compilação do firmware completo para ESP32 (PlatformIO, placa `esp32dev`), o uso total de RAM estática foi de cerca de 90 KB dos 320 KB disponíveis (27,6%), já incluindo a pilha Wi-Fi/MQTT e a fila. A capacidade de uma hora de coleta foi escolhida como compromisso entre autonomia offline e memória: para um monitor vestível, uma hora cobre quedas curtas de conectividade (deslocamentos, elevadores, instabilidade de rede) sem consumir parte relevante dos recursos do ESP32. Acima disso, a política é descartar a leitura mais antiga e manter as mais recentes, que são as mais relevantes para o monitoramento.
+**Dimensionamento da fila.** Cada registro ocupa 32 bytes (dois `unsigned long`, cinco `float` e quatro campos de 1 byte), então 1.800 registros usam 57.600 bytes (cerca de 57,6 KB) de RAM. Na compilação do firmware completo para ESP32 (PlatformIO, placa `esp32dev`), o uso total de RAM estática foi de cerca de 106 KB dos 320 KB disponíveis (32,5%), já incluindo a pilha Wi-Fi/MQTT e a fila, e o uso de memória flash foi de 77,9%. A capacidade de uma hora de coleta foi escolhida como compromisso entre autonomia offline e memória: para um monitor vestível, uma hora cobre quedas curtas de conectividade (deslocamentos, elevadores, instabilidade de rede) sem consumir parte relevante dos recursos do ESP32. Acima disso, a política é descartar a leitura mais antiga e manter as mais recentes, que são as mais relevantes para o monitoramento.
 
 ### 6. Testes realizados e resultados
 
@@ -95,6 +119,8 @@ Em seguida, uma nova leitura foi coletada no estado online e transmitida normalm
 
 Esses resultados demonstram, no ambiente simulado, a continuidade da coleta durante períodos offline e o esvaziamento da fila após o restabelecimento da conectividade.
 
+**Extensões posteriores (DS18B20, MPU6050, LED e buzzer).** A suíte automatizada cobre as regras de alerta e o contrato firmware × fluxo × documentação (86 testes aprovados nesta revisão). No Wokwi, a execução de 2026-11-04 no projeto indicado no README confirmou, em 32 verificações aprovadas: o circuito completo, a coleta offline com a fila crescendo, o alerta local de febre (LED aceso e buzzer ativo) com o DS18B20 em 39 °C, o esvaziamento da fila em ordem após habilitar o envio, o BPM pelo botão (14 cliques a cerca de 150 BPM, com alerta local) e o alerta de sem movimento do MPU6050 após 15 s parado (capturas 12 a 16 em [`evidencias/validacao-2026-11-04/`](evidencias/validacao-2026-11-04/)). O som do buzzer foi verificado apenas pelo indicador visual do simulador. O roteiro e o histórico, incluindo a falha de build anterior por falta do `sketch.ino` no projeto, estão em [`roteiro_teste_wokwi.md`](roteiro_teste_wokwi.md).
+
 ### 7. Limitações e considerações de segurança
 
 O protótipo apresenta limitações decorrentes de seu caráter acadêmico.
@@ -103,11 +129,11 @@ O armazenamento em memória RAM é volátil. Portanto, as leituras são perdidas
 
 Não foi implementado armazenamento persistente em SPIFFS, considerando as limitações do ambiente de simulação e o caráter opcional desse requisito.
 
-Além disso, o DHT22 mede temperatura e umidade ambientais, não temperatura corporal. Os pulsos cardíacos são simulados por acionamentos manuais e não representam medições obtidas de pacientes.
+Além disso, o DHT22 mede temperatura e umidade ambientais, não temperatura corporal; a febre é avaliada no DS18B20, cujo valor é ajustado manualmente no simulador. Os pulsos cardíacos são simulados por acionamentos manuais, e o movimento vem de controles do simulador: nada disso representa medições obtidas de pacientes. O Wokwi não possui sensor de batimento cardíaco; em um dispositivo real o botão seria substituído por um sensor óptico de pulso (como o MAX30102 ou o PulseSensor), com detecção de picos no próprio ESP32.
 
 A variável de conectividade é um interruptor de teste (`f`/`o`): ela simula a queda e a volta da rede, mas não detecta falhas reais de Wi-Fi. A confiabilidade da entrega ao broker também é limitada pelo QoS 0 (ver `relatorio_mqtt.md`).
 
-Outra limitação é que os limiares de alerta são avaliados apenas no dashboard (camada Fog). Com o dispositivo offline, nenhum alerta é emitido: em um monitor real, o alerta local (por exemplo, LED ou buzzer no próprio dispositivo) seria parte essencial do Edge Computing.
+Os limiares de alerta existem em dois lugares, o firmware (alerta local) e o dashboard (camada Fog); mudar um exige mudar o outro. O alerta de "sem movimento" depende do primeiro movimento detectado e usa 15 s para demonstração, e a temperatura corporal vem de um único sensor, sem calibração, filtro de ruído ou verificação de contato com a pele.
 
 Para uma aplicação médica real, seriam necessários sensores adequados e validados, armazenamento persistente, proteção de dados, comunicação criptografada, autenticação, mecanismos confiáveis de confirmação de entrega e avaliação de segurança clínica.
 
@@ -115,13 +141,13 @@ Para uma aplicação médica real, seriam necessários sensores adequados e vali
 
 A implementação da Parte 1 da Fase 3 demonstrou os principais conceitos de Edge Computing aplicados a um protótipo de monitoramento cardiovascular simulado.
 
-O sistema conseguiu realizar leituras periódicas, calcular uma estimativa de BPM, armazenar informações temporariamente durante uma desconexão e sincronizar os registros após a recuperação da conectividade.
+O sistema conseguiu realizar leituras periódicas de quatro fontes de dados, calcular uma estimativa de BPM, avaliar alertas no próprio dispositivo com resposta imediata em LED e buzzer, armazenar informações temporariamente durante uma desconexão e sincronizar os registros após a recuperação da conectividade.
 
 Essa base foi então integrada a um broker MQTT e a um dashboard Node-RED com alertas automáticos, descritos no relatório da Parte 2.
 
 ### Referência do protótipo
 
-**Projeto no Wokwi:** https://wokwi.com/projects/477362937220720641
+**Projeto no Wokwi:** https://wokwi.com/projects/479773169716093953
 
 **Repositório:** https://github.com/Grupo-S-faculdade-FIAP/cardioIA
 

@@ -9,7 +9,7 @@
 
 ### 1. Objetivo e escopo
 
-A segunda parte da Fase 3 do CardioIA demonstra a transmissão de dados de um protótipo de monitoramento baseado em IoT para uma camada de processamento e visualização. O dispositivo é um ESP32 **simulado no Wokwi**, conectado a um sensor DHT22 e a um botão de pressão que representa pulsos cardíacos manuais. O objetivo não é realizar diagnóstico médico, mas implementar e demonstrar coleta periódica, comunicação por MQTT, recepção de eventos e alertas em um dashboard.
+A segunda parte da Fase 3 do CardioIA demonstra a transmissão de dados de um protótipo de monitoramento baseado em IoT para uma camada de processamento e visualização. O dispositivo é um ESP32 **simulado no Wokwi**, conectado a um sensor DHT22 (temperatura e umidade do ambiente), a um DS18B20 (temperatura corporal simulada), a um MPU6050 (movimento) e a um botão de pressão que representa pulsos cardíacos manuais, com LED e buzzer para alerta local. O objetivo não é realizar diagnóstico médico, mas implementar e demonstrar coleta periódica, comunicação por MQTT, recepção de eventos e alertas em um dashboard.
 
 A solução aproveita a etapa anterior de Edge Computing: as amostras são produzidas e armazenadas localmente em uma fila circular com capacidade máxima de 1.800 registros. Quando a publicação está indisponível, novas leituras continuam sendo coletadas; ao restabelecer a transmissão, o ESP32 tenta enviar os registros pendentes na ordem de chegada.
 
@@ -18,29 +18,32 @@ A solução aproveita a etapa anterior de Edge Computing: as amostras são produ
 O fluxo de informações segue esta arquitetura:
 
 ```text
-[DHT22 + botão] → [ESP32 / Wokwi: coleta, BPM e fila Edge]
-                         │
-                         │ Wi-Fi simulado / MQTT (TCP 1883)
-                         ▼
-                [broker.hivemq.com]
-                         │
-                         │ tópico MQTT
-                         ▼
-                  [Node-RED no WSL]
-                    ├── Processar BPM → gráfico temporal
-                    ├── Processar Temperatura → gauge
-                    └── Verificar Alertas → texto de status
+[DHT22 + DS18B20 + MPU6050 + botão] → [ESP32 / Wokwi: coleta, BPM, fila Edge, alerta local]
+                                              │                    └──► LED + buzzer
+                                              │ Wi-Fi simulado / MQTT (TCP 1883)
+                                              ▼
+                                     [broker.hivemq.com]
+                                              │
+                                              │ tópico MQTT
+                                              ▼
+                                       [Node-RED no WSL]
+                                         ├── Processar BPM → gráfico temporal
+                                         ├── Processar Temperatura → gauge ambiental
+                                         ├── Processar Temp. Corporal → gauge corporal
+                                         ├── Processar Movimento → texto
+                                         ├── Processar Alertas Locais → texto
+                                         └── Verificar Alertas → texto de status
 ```
 
-**Camada Edge:** o ESP32 lê temperatura e umidade do DHT22 a cada dois segundos, interpreta os acionamentos do botão como pulsos simulados e guarda os dados localmente. O BPM é estimado pelo intervalo entre pulsos; sem intervalo recente válido, a leitura é marcada como inválida. O uso de `bpm_valido` impede que o valor zero seja confundido com uma medição clínica de frequência cardíaca.
+**Camada Edge:** o ESP32 lê temperatura e umidade do DHT22 e a temperatura corporal do DS18B20 a cada dois segundos, lê o MPU6050 a cada 100 ms, interpreta os acionamentos do botão como pulsos simulados e guarda os dados localmente. O BPM é estimado pelo intervalo entre pulsos; sem intervalo recente válido, a leitura é marcada como inválida. O uso de `bpm_valido` (e de `temp_corporal_valida`) impede que o valor zero seja confundido com uma medição clínica. O firmware também avalia os limiares de alerta localmente e aciona LED e buzzer sem depender da rede; o resultado viaja na mensagem como `alertas_locais`.
 
 **Mensageria:** a biblioteca `PubSubClient` publica mensagens JSON em um broker MQTT de testes. O broker usado é `broker.hivemq.com`, porta `1883`, sem TLS e sem autenticação. O tópico configurado é `cardioia/fiap/fase3/enzf-477362937220720641/sinais`.
 
-**Camada de visualização (Fog/aplicação):** o Node-RED é executado localmente no ambiente WSL e atua como cliente MQTT inscrito no mesmo tópico. As mensagens alimentam um gráfico de BPM, um medidor de temperatura ambiental e um indicador textual de alertas. A arquitetura demonstra integração com um broker remoto, mas **não equivale à implantação de uma infraestrutura própria de nuvem ou a um serviço clínico de produção**.
+**Camada de visualização (Fog/aplicação):** o Node-RED é executado localmente no ambiente WSL e atua como cliente MQTT inscrito no mesmo tópico. As mensagens alimentam um gráfico de BPM, medidores de temperatura corporal e ambiental, indicadores textuais de movimento e de alertas locais do dispositivo, e um indicador textual de alertas avaliados no próprio dashboard. A arquitetura demonstra integração com um broker remoto, mas **não equivale à implantação de uma infraestrutura própria de nuvem ou a um serviço clínico de produção**.
 
 ### 3. Estrutura das mensagens
 
-Cada amostra publicada possui um identificador sequencial, um instante relativo à inicialização do ESP32 (`millis()`), os dados do sensor e a indicação de validade do BPM. Exemplo representativo:
+Cada amostra publicada possui um identificador sequencial, um instante relativo à inicialização do ESP32 (`millis()`), os dados dos sensores, as indicações de validade e a máscara de alertas locais. Exemplo representativo:
 
 ```json
 {
@@ -49,12 +52,26 @@ Cada amostra publicada possui um identificador sequencial, um instante relativo 
   "timestamp_ms": 18000,
   "temperatura": 24.0,
   "umidade": 40.0,
+  "temp_corporal": 36.5,
+  "temp_corporal_valida": true,
   "bpm": 0.0,
-  "bpm_valido": false
+  "bpm_valido": false,
+  "movimento": "aguardando",
+  "aceleracao_g": 1.00,
+  "alertas_locais": 0
 }
 ```
 
-`timestamp_ms` **não é um horário civil absoluto**: representa o tempo decorrido desde o início da simulação. Os campos `temperatura` e `umidade` são leituras ambientais do DHT22; portanto, um limiar de temperatura neste protótipo **não identifica febre**. O BPM é produzido por acionamentos manuais do botão e não por um sensor fisiológico real.
+| Campo | Significado |
+|---|---|
+| `temperatura`, `umidade` | DHT22: leituras do **ambiente** |
+| `temp_corporal`, `temp_corporal_valida` | DS18B20: temperatura corporal simulada; com `false`, o valor é ignorado |
+| `bpm`, `bpm_valido` | Estimativa a partir dos cliques do botão; com `false`, o valor é ignorado |
+| `movimento` | `aguardando` (sem movimento desde o boot), `ativo`, `parado` (15 s sem movimento após já ter havido) ou `indisponivel` |
+| `aceleracao_g` | Módulo da aceleração do MPU6050 (cerca de 1,00 g em repouso) |
+| `alertas_locais` | Máscara de bits decidida pelo ESP32: 1 = BPM elevado, 2 = febre, 4 = sem movimento |
+
+`timestamp_ms` **não é um horário civil absoluto**: representa o tempo decorrido desde o início da simulação. Os campos `temperatura` e `umidade` são leituras ambientais do DHT22; um limiar neles **não identifica febre**, que é avaliada em `temp_corporal`. O BPM é produzido por acionamentos manuais do botão, e a temperatura corporal e o movimento por controles do simulador, e não por sensores fisiológicos reais.
 
 ### 4. Resiliência e reenvio de dados
 
@@ -66,61 +83,49 @@ A confirmação de `mqtt.publish(...)` indica que a biblioteca aceitou a publica
 
 ### 5. Implementação do dashboard no Node-RED
 
-O fluxo foi construído usando o Node-RED e os widgets da biblioteca `@flowfuse/node-red-dashboard` (Dashboard 2.0). Um nó `mqtt in` recebe os eventos do tópico do CardioIA e os encaminha a três funções independentes:
+O fluxo foi construído usando o Node-RED e os widgets da biblioteca `@flowfuse/node-red-dashboard` (Dashboard 2.0). Um nó `mqtt in` recebe os eventos do tópico do CardioIA e os encaminha a seis funções independentes:
 
 1. **Processar BPM:** verifica se `bpm_valido` é verdadeiro e se `bpm` é numérico. Somente as leituras válidas seguem ao gráfico de linhas, cuja escala representa BPM.
-2. **Processar Temperatura:** verifica a presença de valor numérico em `temperatura` e o envia ao widget de medidor (*gauge*), configurado em graus Celsius, com escala de 0 a 50 °C e faixas de cor alinhadas ao limiar de alerta: verde até 30 °C, amarelo de 30 a 38 °C e vermelho a partir de 38 °C.
-3. **Verificar Alertas:** gera a mensagem `ALERTA: BPM simulado elevado` para BPM válido acima de 120; e `ALERTA: Temperatura ambiental elevada` para temperatura acima de 38 °C. Caso nenhuma condição seja atendida, o texto indica `Monitoramento sem alertas ativos`.
+2. **Processar Temperatura:** verifica a presença de valor numérico em `temperatura` e o envia ao *gauge* da temperatura **ambiental**, em graus Celsius, com escala de 0 a 50 °C e faixas de cor alinhadas ao limiar de alerta: verde até 30 °C, amarelo de 30 a 38 °C e vermelho a partir de 38 °C.
+3. **Processar Temp. Corporal:** só encaminha `temp_corporal` quando `temp_corporal_valida` é verdadeiro. O *gauge* da temperatura **corporal** tem escala de 30 a 42 °C: azul até 35 °C, verde de 35 a 37,5 °C, amarelo de 37,5 a 38 °C e vermelho a partir de 38 °C.
+4. **Processar Movimento:** converte o campo `movimento` em texto (`Em movimento`, `Aguardando primeiro movimento`, `SEM MOVIMENTO…` ou `Sensor de movimento indisponível`) acompanhado do módulo da aceleração.
+5. **Processar Alertas Locais:** decodifica a máscara `alertas_locais` e mostra o que o **dispositivo** decidiu (`BPM elevado`, `Febre`, `Sem movimento` ou `Nenhum`), tornando visível no dashboard o alerta do Edge.
+6. **Verificar Alertas:** avalia as regras do dashboard (Fog) e gera `ALERTA: ` seguido da lista de condições separadas por ` | `: `BPM simulado elevado` (BPM válido acima de 120), `Febre (temperatura corporal elevada)` (temperatura corporal válida acima de 38 °C), `Sem movimento` (estado `parado`) e `Temperatura ambiental elevada` (DHT22 acima de 38 °C). Caso nenhuma condição seja atendida, o texto indica `Monitoramento sem alertas ativos`.
 
-Esses valores de corte são **regras demonstrativas**, escolhidas para o exercício acadêmico, e não critérios de diagnóstico. O status textual descreve a avaliação da mensagem recebida naquele instante; na implementação atual, a ausência de BPM válido não é diferenciada visualmente de uma medição válida sem alerta. Essa limitação deve ser corrigida antes de qualquer uso mais crítico.
+Esses valores de corte são **regras demonstrativas**, escolhidas para o exercício acadêmico, e não critérios de diagnóstico. O mesmo conjunto de limiares existe no firmware (alerta local) e no dashboard; mudar um exige mudar o outro. O [contrato MQTT](contrato_mqtt.md) registra onde cada regra mora, e testes automatizados conferem a consistência entre firmware, fluxo e documentos. O status textual descreve a avaliação da mensagem recebida naquele instante; na implementação atual, a ausência de BPM válido não é diferenciada visualmente de uma medição válida sem alerta. Essa limitação deve ser corrigida antes de qualquer uso mais crítico.
 
-O gráfico exibe a evolução dos valores válidos recebidos, enquanto o gauge mostra a temperatura da última amostra processada. O fluxo exportado em JSON permite importar a configuração em outra instância compatível de Node-RED, desde que os pacotes necessários estejam instalados.
+O gráfico exibe a evolução dos valores válidos recebidos, enquanto os gauges mostram as temperaturas da última amostra processada. O fluxo exportado em JSON permite importar a configuração em outra instância compatível de Node-RED, desde que os pacotes necessários estejam instalados.
 
-### 6. Testes executados e resultados observados
+### 6. Testes e resultados
 
-Foram realizados testes funcionais na simulação Wokwi e no dashboard local do Node-RED:
+As capturas antigas foram removidas porque mostravam uma versão anterior do sistema. Os resultados históricos de testes feitos nessa versão não são usados como evidência da implementação atual.
 
-| Teste | Procedimento | Evidência observada |
+**Verificações automatizadas da versão atual.**
+
+| Verificação | Método | Resultado |
 |---|---|---|
-| Compilação | Executar a versão MQTT do `sketch.ino` no Wokwi | Simulação iniciada e Monitor Serial exibindo leituras |
-| Coleta offline | Manter a transmissão desabilitada durante diversas leituras | Registros adicionados à fila (`[EDGE]`) |
-| Reconexão | Enviar `o` no Monitor Serial | Mensagens de conexão Wi-Fi/MQTT e publicações aceitas para as leituras pendentes |
-| Integração MQTT | Manter Wokwi e Node-RED em execução | Dashboard exibiu dados oriundos da simulação |
-| Gráfico | Produzir pulsos manuais válidos | Curva de BPM exibida, com valores simulados entre aproximadamente 80 e 200 BPM na captura 01 |
-| Temperatura | Manter DHT22 com temperatura ambiente de 24 °C | Gauge exibiu 24 °C |
-| Alerta de BPM | Simular pulsos que ultrapassam o limiar de 120 BPM | Texto `ALERTA: BPM simulado elevado` apareceu |
-| Recuperação do alerta de BPM | Parar de acionar o botão e aguardar a expiração da leitura | Texto de alerta desapareceu |
-| Alerta de temperatura | Ajustar o DHT22 simulado para 39 °C | Texto `ALERTA: Temperatura ambiental elevada` apareceu (captura 01, com 39,4 °C) |
+| Compilação do firmware | PlatformIO, placa `esp32dev`, Arduino-ESP32 | Sem erros nem avisos no sketch; RAM 32,5%, flash 77,9% |
+| Regras e contrato do Node-RED | 86 testes sobre as funções do fluxo e o contrato firmware × fluxo × documentação, incluindo limites, leituras inválidas, formato antigo e máscara `alertas_locais` | 86 passaram; 0 falharam (`node --test tests/funcoes.test.mjs tests/contrato.test.mjs`) |
+| Integridade do fluxo exportado | Verificação de ids duplicados e fios quebrados no JSON | Sem problemas |
+| Build do projeto público Wokwi | Início da simulação em navegador automatizado no projeto [`cardioIAiot`](https://wokwi.com/projects/479773169716093953) | Passou depois de o `sketch.ino` ser adicionado ao projeto, em 2026-11-04. Antes disso o build falhava com `setup()` e `loop()` indefinidos (captura 06 em `evidencias/validacao-2026-11-04/`) |
+| Recepção MQTT e dashboard Node-RED | Node-RED 5.0.9 isolado, Dashboard 2.0 1.33.0, mensagem sintética publicada no tópico do contrato | Passou: os dois gauges mostraram 39 °C, movimento `parado`, máscara local 7 e status com os quatro alertas esperados. Capturas 07 e 08 em `evidencias/validacao-2026-11-04/` |
+| Execução no Wokwi (ESP32 simulado) até o dashboard | Projeto do link acima, em sessão anônima de navegador automatizado (35 % a 80 % da velocidade real), com o dashboard do Node-RED local; 32 verificações seguindo o [`roteiro_teste_wokwi.md`](roteiro_teste_wokwi.md) | Passou (32 de 32): boot e coleta offline com a fila crescendo; alerta local de febre com LED e buzzer; após `o`, Wi-Fi e broker conectados, publicações em ordem e fila esvaziada; dashboard com os alertas de febre, de BPM (14 cliques a cerca de 150 BPM) e de sem movimento; comandos `f` e `s`. Capturas 12 a 19. **Não verificado:** o som do buzzer (só o indicador visual) e a captura do editor do Node-RED |
 
 No gráfico, várias leituras reprocessadas após a reconexão foram apresentadas com instantes de chegada próximos, em vez dos instantes originais de coleta. Uma evolução futura seria usar os identificadores e timestamps de origem para posicionar os registros no tempo e distinguir dados atrasados de dados recebidos em tempo real.
 
-**Evidências.** As capturas estão em [`evidencias/`](evidencias/) e são apresentadas na seção seguinte. Elas documentam a integração de ponta a ponta (a mesma leitura #15 aparece no Monitor Serial do Wokwi e no debug do Node-RED) e o alerta de temperatura. Os testes de alerta de BPM e de recuperação do alerta foram observados na simulação, mas não possuem captura própria.
-
-### 6.1 Capturas de tela
-
-As capturas foram feitas em 08 e 09/10/2026, antes da refatoração final do `sketch.ino`; por isso o texto exato das mensagens do Monitor Serial pode diferir do firmware atual, embora o fluxo demonstrado (coleta, fila, publicação e dashboard) seja o mesmo.
-
-**Captura 01 — Dashboard Node-RED com alerta de temperatura (DHT22 em 39,4 °C):**
-
-![Dashboard Node-RED](evidencias/01-dashboard-nodered.jpeg)
-
-**Captura 02 — Wokwi: circuito, Monitor Serial e publicação MQTT da leitura #15:**
-
-![Wokwi e Monitor Serial](evidencias/02-wokwi-serial-mqtt.jpeg)
-
-**Captura 03 — Editor do Node-RED: fluxo conectado ao broker e mensagens recebidas (debug):**
-
-![Editor do Node-RED](evidencias/03-nodered-editor-fluxo.jpeg)
+**Evidências e validação visual.** Todas as leituras vêm do ESP32 **simulado** no Wokwi; o projeto não usa hardware físico. As capturas 12 a 19 (em [`evidencias/validacao-2026-11-04/`](evidencias/validacao-2026-11-04/)) documentam a execução final no projeto do link: coleta offline, alerta local de febre, sincronização da fila em ordem, BPM pelos cliques do botão e alerta de sem movimento, com o dashboard do Node-RED recebendo cada alerta. As capturas 01 e 05 são de uma execução anterior no projeto `cardioiaiot` (ID 479766849694291969); a 06 registra a falha de build que o projeto do link tinha antes de receber o `sketch.ino`; a 07 e a 08 mostram o dashboard processando uma mensagem sintética no formato do firmware (dado gerado pelo teste, não pelo Wokwi); a 09 resume a suíte automatizada (86 aprovados). As 32 verificações da execução final foram feitas por um navegador automatizado, e o roteiro em [`roteiro_teste_wokwi.md`](roteiro_teste_wokwi.md) descreve os mesmos passos para execução manual. O som do buzzer não foi verificado (só o indicador visual) e falta a captura do editor do Node-RED.
 
 ### 7. Limitações, segurança e possíveis melhorias
 
 O broker empregado é **público e não criptografado**, adequado exclusivamente a testes com dados fictícios. Não se deve enviar nomes, informações identificáveis, dados reais de saúde, chaves de acesso ou segredos por esse canal. Em ambiente real seria necessário utilizar TLS, autenticação, controle de acesso por tópicos e políticas de privacidade e retenção.
 
-O dispositivo é uma simulação: não existe sensor cardíaco real, avaliação clínica, calibração certificada ou validação de precisão. Além disso, o buffer em RAM não garante persistência após reinicialização, o MQTT em QoS 0 não garante entrega, e `millis()` não corresponde a um relógio sincronizado.
+O dispositivo é uma simulação: o Wokwi não possui sensor de batimento cardíaco (o botão faz esse papel), e a temperatura corporal e o movimento vêm de controles do simulador. Não existe avaliação clínica, calibração certificada ou validação de precisão. Além disso, o buffer em RAM não garante persistência após reinicialização, o MQTT em QoS 0 não garante entrega, e `millis()` não corresponde a um relógio sincronizado.
 
-Os limiares de alerta são avaliados somente no Node-RED (Fog): com o dispositivo offline não há alerta algum. Isso é aceitável para a demonstração, mas um monitor real precisaria de um alerta local no próprio ESP32.
+Os alertas são avaliados em dois lugares: no ESP32 (LED e buzzer, que funcionam mesmo offline) e no Node-RED (texto de status). Em contrapartida, os limiares ficam duplicados e precisam ser mantidos em sincronia. O alerta de "sem movimento" só vale depois do primeiro movimento detectado e usa 15 s para demonstração.
 
-Como próximos avanços são recomendados: armazenamento persistente quando aplicável, timestamps sincronizados (por exemplo, NTP), monitoramento do estado *sem dados válidos*, alerta local no dispositivo (LED ou buzzer), tratamento de falhas com confirmações fim a fim, migração para um broker com TLS e autenticação (como o HiveMQ Cloud), controle de acesso e testes automatizados para os limiares de alerta.
+Em um dispositivo real, o botão seria substituído por um sensor óptico de pulso (como o MAX30102, por I2C, ou o PulseSensor, analógico), com detecção de picos no próprio ESP32, e o DS18B20 teria a sonda em contato com a pele.
+
+Como próximos avanços são recomendados: armazenamento persistente quando aplicável, timestamps sincronizados (por exemplo, NTP), monitoramento do estado *sem dados válidos*, detecção de queda com o MPU6050, tratamento de falhas com confirmações fim a fim, migração para um broker com TLS e autenticação (como o HiveMQ Cloud), controle de acesso e um teste automatizado ponta a ponta com o simulador (hoje os testes automatizados cobrem as regras de alerta e o contrato, e a execução no Wokwi é manual).
 
 ### 8. Conclusão
 
@@ -130,11 +135,14 @@ O resultado atende ao propósito **didático** de demonstrar aquisição, transp
 
 ### 9. Materiais de reprodução
 
-- Simulação Wokwi: https://wokwi.com/projects/477362937220720641
+- Simulação Wokwi: https://wokwi.com/projects/479773169716093953
 - Firmware: `fase3/esp32/sketch.ino`
 - Bibliotecas: `fase3/esp32/libraries.txt`
 - Fluxo Node-RED: `fase3/node_red/cardioia-fase3-flow.json`
+- Contrato MQTT: `fase3/docs/contrato_mqtt.md`
+- Testes do Node-RED: `fase3/node_red/tests/` (`npm test` dentro de `fase3/node_red`)
 - Dashboard local (com Node-RED em execução): `http://localhost:1880/dashboard`
 - Relatório da Parte 1: `fase3/docs/relatorio_edge.md`
 - Evidências (capturas de tela): `fase3/docs/evidencias/`
+- Roteiro de teste no Wokwi: `fase3/docs/roteiro_teste_wokwi.md`
 - Repositório: https://github.com/Grupo-S-faculdade-FIAP/cardioIA

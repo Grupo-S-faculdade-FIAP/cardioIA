@@ -219,7 +219,7 @@ def main() -> None:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     final.to_csv(OUTPUT_PATH, index=False, encoding="utf-8-sig")
-    log(f"\n{len(final)} linhas salvas em {OUTPUT_PATH}")
+    log(f"\n{len(final)} linhas salvas em {OUTPUT_PATH.relative_to(REPO_ROOT).as_posix()}")
 
     LOG_PATH.write_text(
         f"# Linhagem e checagem de qualidade — {OUTPUT_PATH.name}\n\n"

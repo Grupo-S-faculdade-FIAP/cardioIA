@@ -3,8 +3,8 @@
 Gerado em 2026-08-31T19:57:52 a partir de `pns_ckm_estagios_2013.csv` + colunas P050/Q006 extraidas do Excel bruto da PNS.
 
 ```
-Lendo bruto (P050 tabagismo, Q006 uso de anti-hipertensivo): C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA/data/raw/pns_2013_exames/EXAMES-PNS-2013-FINAL_05052023.xlsx
-Lendo dataset com estagios ja calculados: C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA/data/processed/pns_ckm_estagios_2013.csv
+Lendo bruto (P050 tabagismo, Q006 uso de anti-hipertensivo): data/raw/pns_2013_exames/EXAMES-PNS-2013-FINAL_05052023.xlsx
+Lendo dataset com estagios ja calculados: data/processed/pns_ckm_estagios_2013.csv
 8952 linhas de cada lado, alinhadas por posicao
 Uso_Anti_Hipertensivo: 6423 NA recodificados para 'Nao' (ausencia logica — sem diagnostico de hipertensao)
 Fumante_Atual: 1294 Sim, 7650 Nao, 8 NA
@@ -19,5 +19,5 @@ Distribuicao de CKM_Stage_Com_PREVENT (agora com Estagio 3 real, via criterio PR
   3: 15 (0.2%)
   4: 395 (4.4%)
 
-8952 linhas salvas em C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA/data/processed/pns_ckm_prevent_2013.csv
+8952 linhas salvas em data/processed/pns_ckm_prevent_2013.csv
 ```

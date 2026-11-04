@@ -1,0 +1,9 @@
+# Dependências e logs locais: nada disso vai para o repositório.
+node_modules/
+*.log
+
+# Só se esta pasta for usada como userDir do Node-RED (não recomendado: veja o README),
+# ignora o que o runtime gera.
+.config.*.json
+.*.backup
+*_cred.json

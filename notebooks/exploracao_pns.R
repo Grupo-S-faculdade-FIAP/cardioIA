@@ -1,3 +1,5 @@
+# Rode a partir da raiz do repositório (setwd("<pasta do projeto>") ou abra o projeto no RStudio):
+# os caminhos de dados abaixo são relativos a ela.
 library(lubridate)
 library(readxl)
 library(ggplot2)
@@ -6,7 +8,7 @@ library(tidyverse)
 
 
 dados_br <- read.csv(
-  "C:/Users/caroo/OneDrive/Desktop/FIAP/projetos/cardioIA/data/processed/pns_ckm_rce_2013.csv",
+  "data/processed/pns_ckm_rce_2013.csv",
   na.strings = c("NA", "")
 )
 

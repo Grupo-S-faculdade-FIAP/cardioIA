@@ -1,0 +1,12 @@
+{
+  "name": "cardioia-fase3-node-red",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Camada Fog da Fase 3 do CardioIA: fluxo Node-RED (Dashboard 2.0) com testes de função e de contrato",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/funcoes.test.mjs tests/contrato.test.mjs"
+  }
+}

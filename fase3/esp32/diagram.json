@@ -10,7 +10,46 @@
       "id": "btn1",
       "top": -89.8,
       "left": 153.6,
-      "attrs": { "color": "red", "xray": "1" }
+      "attrs": { "color": "red", "xray": "1", "key": "b" }
+    },
+    {
+      "type": "wokwi-ds18b20",
+      "id": "ds1",
+      "top": -134.1,
+      "left": 262.2,
+      "attrs": { "temperature": "36.5" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -43.2,
+      "left": 450.65,
+      "rotate": 90,
+      "attrs": { "value": "4700" }
+    },
+    { "type": "wokwi-mpu6050", "id": "imu1", "top": 99.82, "left": 299.92, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 236.4,
+      "left": 176.6,
+      "rotate": 90,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 254.4,
+      "left": 85.85,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": 290.4,
+      "left": 237,
+      "attrs": { "volume": "0.1" }
     }
   ],
   "connections": [
@@ -20,7 +59,21 @@
     [ "dht1:SDA", "esp:15", "green", [ "v0" ] ],
     [ "dht1:GND", "esp:GND.1", "black", [ "v0" ] ],
     [ "btn1:2.l", "esp:18", "green", [ "h0" ] ],
-    ["btn1:1.r", "esp:GND.2", "blue", ["v48.2", "h-119.84"]]
+    [ "btn1:1.r", "esp:GND.2", "blue", [ "v48.2", "h-119.84" ] ],
+    [ "ds1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "ds1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "ds1:DQ", "esp:4", "orange", [ "v0" ] ],
+    [ "r1:1", "ds1:VCC", "red", [ "h0" ] ],
+    [ "r1:2", "ds1:DQ", "orange", [ "h0" ] ],
+    [ "imu1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "imu1:GND", "esp:GND.2", "black", [ "h0.08", "v-86.4", "h-240", "v9.6" ] ],
+    [ "imu1:SDA", "esp:21", "purple", [ "v0" ] ],
+    [ "imu1:SCL", "esp:22", "yellow", [ "v0" ] ],
+    [ "esp:26", "r2:1", "red", [ "h-33.41", "v115.2" ] ],
+    [ "r2:2", "led1:A", "red", [ "h0" ] ],
+    [ "led1:C", "esp:GND.2", "black", [ "v-201.6", "h-86", "v-28.8" ] ],
+    [ "esp:27", "bz1:2", "orange", [ "h-23.81", "v249.6" ] ],
+    [ "bz1:1", "esp:GND.2", "black", [ "v-336", "h-139.2", "v-9.6" ] ]
   ],
   "dependencies": {}
 }
