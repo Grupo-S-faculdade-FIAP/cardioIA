@@ -303,10 +303,7 @@ def main() -> None:
     plt.close(fig)
 
     payload = {
-        "aviso_clinico": (
-            "Protótipo acadêmico — NÃO substitui avaliação médica. "
-            "Dra. Fernanda Fassina CRM-SP 169944."
-        ),
+        "aviso_clinico": "Protótipo acadêmico — NÃO substitui avaliação médica.",
         "seed": SEED,
         "melhor_modelo": str(melhor_nome),
         "cnn_simples": {k: v for k, v in m_cnn.items() if k != "figura"},

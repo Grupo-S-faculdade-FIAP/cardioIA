@@ -1,7 +1,6 @@
 # Evidências — Fase 4
 
 > ⚠️ **AVISO CLÍNICO:** Protótipo acadêmico — **NÃO** substitui avaliação médica.
-> Dra. Fernanda Fassina (CRM-SP 169944).
 
 | Arquivo | Conteúdo |
 |---|---|

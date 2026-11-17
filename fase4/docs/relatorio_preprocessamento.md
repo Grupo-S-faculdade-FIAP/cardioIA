@@ -1,7 +1,6 @@
 # Relatório — Pré-processamento de imagens de ECG (Fase 4 · Parte 1)
 
 > ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
-> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
 **Equipe:** Grupo S — FIAP (Caroline Corrêa, Enzo Sader, Lucas Koyama, Rodrigo Figueiroa, Tiago Curi)  
 **Notebook:** [`../notebooks/01_preprocessamento.ipynb`](../notebooks/01_preprocessamento.ipynb)  

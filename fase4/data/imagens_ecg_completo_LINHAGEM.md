@@ -52,4 +52,3 @@ Inspeção visual (Fase 1) e declaração dos autores: laudos sem PII identific�
 ## Aviso clínico
 
 > ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
-> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).

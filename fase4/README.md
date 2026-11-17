@@ -1,7 +1,6 @@
 # CardioIA — Fase 4: Assistente Cardiológico Virtual (Visão Computacional)
 
 > ⚠️ **AVISO CLÍNICO:** Este sistema é um protótipo acadêmico e **NÃO** substitui avaliação médica.
-> Supervisionado por Dra. Fernanda Fassina (CRM-SP 169944).
 
 Protótipo que transforma **imagens de ECG** (dataset público) em classificação assistida por CNN, com pré-processamento documentado, comparação entre rede treinada do zero e Transfer Learning (VGG16) e demonstração interativa em Gradio.
 

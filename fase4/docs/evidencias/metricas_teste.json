@@ -1,5 +1,5 @@
 {
-  "aviso_clinico": "Protótipo acadêmico — NÃO substitui avaliação médica. Dra. Fernanda Fassina CRM-SP 169944.",
+  "aviso_clinico": "Protótipo acadêmico — NÃO substitui avaliação médica.",
   "seed": 42,
   "melhor_modelo": "VGG16_TL",
   "cnn_simples": {
