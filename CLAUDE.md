@@ -69,6 +69,23 @@ fase3/
 - O broker `broker.hivemq.com` é público e sem criptografia: nunca publicar dados reais.
 - Toda leitura mostrada como evidência vem do ESP32 **simulado** no Wokwi (não há hardware físico). Capturas de dados sintéticos (por exemplo, teste do dashboard com mensagem injetada) devem ser rotuladas como tal e nunca apresentadas como saída do Wokwi.
 
+## 5.2 Estrutura de arquivos — Fase 4 (Visão Computacional)
+
+```
+fase4/
+  data/             ← baixar_ecg_mendeley.py + imagens_ecg_completo_LINHAGEM.md
+                       imagens_ecg_completo/ e processado/ são gitignored (~615 MB)
+  notebooks/        ← 01_preprocessamento.ipynb, 02_cnn_classificacao.ipynb (Gradio)
+  docs/             ← relatorio_preprocessamento.md + evidencias/ (métricas, CMs)
+  src/              ← pipeline_imagens.py, treinar_e_avaliar.py
+  models/           ← pesos .keras (gitignored)
+```
+
+- Dataset: Mendeley *ECG Images dataset of Cardiac Patients* v2 (DOI `10.17632/gwbz3fsgp8.2`, CC BY 4.0), conjunto **completo** (~928 imagens). A amostra de 120 em `assets/imagens_ecg/` da Fase 1 permanece intacta.
+- Seed **42** em splits e treino; split estratificado 70%/15%/15%; resize 224×224; sem flip horizontal no augmentation.
+- Toda saída externa (notebook, Gradio, relatório) deve incluir o aviso clínico da seção 3.
+- Não versionar as ~928 imagens brutas nem os pesos grandes — baixar com `python fase4/data/baixar_ecg_mendeley.py`.
+
 ## 6. Base de conhecimento (knowledge_base/)
 
 - Os 5 CSVs formam um grafo de entidades: ver SDD §3 para esquema e contratos.
@@ -93,6 +110,11 @@ python -m pytest fase2/tests/test_extrator_golden.py -v
 
 # Fase 3 (Node-RED): regras dos nós + contrato firmware × fluxo × documentos
 cd fase3/node_red && npm test
+
+# Fase 4 (visão computacional): baixar ECGs, preprocessar e treinar
+python fase4/data/baixar_ecg_mendeley.py
+python fase4/src/pipeline_imagens.py
+python fase4/src/treinar_e_avaliar.py
 ```
 
 - `xfail_strict = true` (configurado em `pytest.ini`): se um teste marcado xfail começar a passar, vire erro — limpar o marcador.
@@ -137,4 +159,4 @@ Agentes em `.claude/agents/` (o Claude Code os aciona pelo nome):
 
 ---
 
-*Última atualização: 2026-11-04 | Equipe Grupo S — FIAP*
+*Última atualização: 2026-11-11 | Equipe Grupo S — FIAP*

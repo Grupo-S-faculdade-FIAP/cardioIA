@@ -12,6 +12,7 @@ Este repositório reúne as entregas do projeto **CardioIA**, desenvolvido no cu
 | **1 — Batimentos de Dados** | Estruturar, catalogar e governar dados numéricos, textuais e visuais | este README + [`RELATORIO-FASE1.md`](RELATORIO-FASE1.md) | PNS 2013 com exames (8.952 brasileiros), 3 artigos científicos, 120 ECGs |
 | **2 — Diagnóstico Automatizado** | NLP para extrair sintomas, classificador de risco com TF-IDF e análise de vieses | **[`fase2/README.md`](fase2/README.md)** · [`RELATORIO-FASE2.md`](RELATORIO-FASE2.md) · 🎥 [vídeo](https://youtu.be/dAxV0-LsrXk) | Extrator acerta os 10 relatos; classificador com acurácia 0,917 e recall de alto risco 0,900; vieses medidos com dado real da PNS |
 | **3 — Monitoramento Contínuo (IoT)** | ESP32 com Edge Computing, telemetria MQTT e dashboard Node-RED | **[`fase3/README.md`](fase3/README.md)** · [Wokwi](https://wokwi.com/projects/479773169716093953) | 4 fontes de dados (DHT22, DS18B20, MPU6050 e botão de BPM); alerta local com LED/buzzer mesmo offline; fila circular de 1.800 leituras com sincronização após reconexão; dashboard com gráfico de BPM, gauges, movimento e alertas (dados 100% simulados) |
+| **4 — Assistente Cardiológico Virtual (VC)** | Pré-processamento de ECGs, CNN do zero × Transfer Learning (VGG16) e demo Gradio | **[`fase4/README.md`](fase4/README.md)** · [`fase4/docs/relatorio_preprocessamento.md`](fase4/docs/relatorio_preprocessamento.md) | 928 ECGs Mendeley; VGG16 com F1 macro 0,748 no teste; CNN do zero como baseline; Gradio no notebook 02 |
 
 ## Integrantes
 
@@ -136,6 +137,12 @@ O desenvolvimento da base do CardioIA segue os princípios formais de Governanç
 │   ├── esp32/                                  # sketch.ino, diagram.json, libraries.txt (projeto Wokwi) e wifi_config.example.h (modelo)
 │   ├── node_red/                               # fluxo do dashboard, README, testes (npm test) e package.json
 │   └── docs/                                   # contrato_mqtt.md, relatórios (md e pdf), roteiro de teste e evidencias/ (prints)
+├── fase4/                                      # FASE 4 — Visão computacional em ECG (ver fase4/README.md)
+│   ├── data/                                   # download Mendeley + linhagem (imagens completas gitignored)
+│   ├── notebooks/                              # 01_preprocessamento, 02_cnn_classificacao (+ Gradio)
+│   ├── docs/                                   # relatório Parte 1 + evidencias/ (métricas)
+│   ├── src/                                    # pipeline_imagens.py, treinar_e_avaliar.py
+│   └── models/                                 # pesos .keras (gitignored)
 ├── tests/
 │   ├── validar_extracao_pns.py                 # compara bruto (Excel) x tratado (CSV) linha a linha
 │   └── validar_ckm_stage.py                    # prova que CKM_Stage é consequência lógica fiel dos classificadores

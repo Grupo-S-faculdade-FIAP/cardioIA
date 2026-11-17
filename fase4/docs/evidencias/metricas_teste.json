@@ -1,0 +1,73 @@
+{
+  "aviso_clinico": "Protótipo acadêmico — NÃO substitui avaliação médica. Dra. Fernanda Fassina CRM-SP 169944.",
+  "seed": 42,
+  "melhor_modelo": "VGG16_TL",
+  "cnn_simples": {
+    "modelo": "CNN_simples",
+    "acuracia": 0.30714285714285716,
+    "precisao_macro": 0.07678571428571429,
+    "recall_macro": 0.25,
+    "f1_macro": 0.11748633879781421,
+    "matriz_confusao": [
+      [
+        43,
+        0,
+        0,
+        0
+      ],
+      [
+        36,
+        0,
+        0,
+        0
+      ],
+      [
+        26,
+        0,
+        0,
+        0
+      ],
+      [
+        35,
+        0,
+        0,
+        0
+      ]
+    ],
+    "relatorio": "                             precision    recall  f1-score   support\n\n                     Normal       0.31      1.00      0.47        43\n          Infarto_Miocardio       0.00      0.00      0.00        36\nHistorico_Infarto_Miocardio       0.00      0.00      0.00        26\n          Batimento_Anormal       0.00      0.00      0.00        35\n\n                   accuracy                           0.31       140\n                  macro avg       0.08      0.25      0.12       140\n               weighted avg       0.09      0.31      0.14       140\n"
+  },
+  "vgg16_tl": {
+    "modelo": "VGG16_TL",
+    "acuracia": 0.7428571428571429,
+    "precisao_macro": 0.7808133578552385,
+    "recall_macro": 0.7266611295681062,
+    "f1_macro": 0.7295554128578983,
+    "matriz_confusao": [
+      [
+        31,
+        12,
+        0,
+        0
+      ],
+      [
+        0,
+        36,
+        0,
+        0
+      ],
+      [
+        7,
+        4,
+        13,
+        2
+      ],
+      [
+        3,
+        5,
+        3,
+        24
+      ]
+    ],
+    "relatorio": "                             precision    recall  f1-score   support\n\n                     Normal       0.76      0.72      0.74        43\n          Infarto_Miocardio       0.63      1.00      0.77        36\nHistorico_Infarto_Miocardio       0.81      0.50      0.62        26\n          Batimento_Anormal       0.92      0.69      0.79        35\n\n                   accuracy                           0.74       140\n                  macro avg       0.78      0.73      0.73       140\n               weighted avg       0.78      0.74      0.74       140\n"
+  }
+}

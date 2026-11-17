@@ -5,3 +5,13 @@ __pycache__/
 .RData
 .Rproj.user/
 fase3/esp32/wifi_config.h
+
+# Fase 4 — dataset completo (~615 MB), processado e pesos (não versionar)
+fase4/data/imagens_ecg_completo/
+fase4/data/processado/
+fase4/models/*.keras
+fase4/models/*.h5
+fase4/models/*.weights.*
+!fase4/models/.gitkeep
+
+.ipynb_checkpoints/
